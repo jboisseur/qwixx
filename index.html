@@ -1,0 +1,202 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="style.css" />
+        <script type="text/javascript" src="script.js" defer></script>
+        <title>Qwixx - étape 1</title>
+    </head>
+    <body>
+        
+        <section>
+            <table>
+                <th colspan = "10">Lancé de dés</th>
+                <tr class="lance">
+                    <td class="deblanc" id="DBlanc1"></td>
+                    <td class="deblanc" id="DBlanc2"></td>
+                    <td class="lignerouge" id="DRed" colspan="2"></td>
+                    <td class="lignejaune" id="DYellow" colspan="2"></td>
+                    <td class="ligneverte" id="DGreen" colspan="2"></td>
+                    <td class="lignebleue" id="DBlue" colspan="2"></td>
+                </tr>
+                
+                <!-- DEBUT de la partie optionnelle
+                Explication : pour les besoins des tests, on affiche une ligne présentant les 9 résultats possibles
+                ATTENTION : quand on effacera l'aide visuelle, penser à supprimer les fusions de colonnes des dés de couleur au-dessus (colspan = "2") + celui du titre (remettre à 6) -->
+                
+                <tr>
+                    <td colspan="2" id="DBlanc1+DBlanc2"></td>
+                    <td id="DBlanc1+DRed"></td>
+                    <td id="DBlanc2+DRed"></td>
+                    <td id="DBlanc1+DYellow"></td>
+                    <td id="DBlanc2+DYellow"></td>
+                    <td id="DBlanc1+DGreen"></td>
+                    <td id="DBlanc2+DGreen"></td>
+                    <td id="DBlanc1+DBlue"></td>
+                    <td id="DBlanc2+DBlue"></td>               
+                </tr>
+                
+                <!-- FIN de la partie optionnelle -->
+            
+            </table>
+        
+        </section>
+        
+        <table id = "feuille">
+            
+            <th colspan = "12">Feuille de marque de <span id="prenom">Prénom</span></th>
+            
+            <!-- Pour les besoins des tests, on a forcé l'ajout de classes aux <td> de la <table> #feuille mais elles doivent être enlevées pour la production -->
+            
+            <tr class = "lignerouge">
+                <td class = "caseimpossible">2</td>
+                <td class = "caseimpossible">3</td>
+                <td class = "caseimpossible">4</td>
+                <td class = "casecochee">5</td>
+                <td class = "casecochee">6</td>
+                <td class = "casecochee">7</td>
+                <td class = "casecochee">8</td>
+                <td class = "casecochee">9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+                <td id="LRfin"><img src="open-lock.png"/></td>
+            </tr>
+            
+            <tr class= "lignejaune">
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+                <td id = "LYfin"><img src = "open-lock.png"/></td>
+            </tr>
+            
+            <tr class= "ligneverte">
+                <td class = "caseimpossible">12</td>
+                <td class = "caseimpossible">11</td>
+                <td class = "casecochee">10</td>
+                <td class = "casecochee">9</td>
+                <td class = "casecochee">8</td>
+                <td class = "casecochee">7</td>
+                <td class = "casecochee">6</td>
+                <td>5</td>
+                <td>4</td>
+                <td>3</td>
+                <td>2</td>
+                <td id = "LGfin"><img src = "open-lock.png"/></td>
+            </tr>
+            
+            <tr class = "lignebleue">
+                <td>12</td>
+                <td>11</td>
+                <td>10</td>
+                <td>9</td>
+                <td>8</td>
+                <td>7</td>
+                <td>6</td>
+                <td>5</td>
+                <td>4</td>
+                <td>3</td>
+                <td>2</td>
+                <td id = "LBfin"><img src = "open-lock.png"/></td>
+            </tr>            
+                
+            <tr id = "moins5">
+                <td colspan = "7" class = "noborder"></td>
+                <td class = "casecochee">-5</td>
+                <td>-5</td>
+                <td>-5</td>
+                <td>-5</td>            
+            </tr>
+            
+            <tr>
+                <td colspan = "12">Résultats</td>         
+            </tr>
+            
+            <tr class="resultats">
+               <td colspan = "2" class = "lignerouge" id = "totalrouge">0</td>
+                <td colspan = "2" class = "lignejaune" id = "totaljaune">0</td>
+                <td colspan = "2" class = "ligneverte" id = "totalvert">0</td>
+                <td colspan = "2" class = "lignebleue" id = "totalbleu">0</td>
+                <td colspan="2" id = "totalnegatif">0</td>
+                <td colspan="2" class = "resultat" id="resultat">0</td>
+            </tr>
+        </table>
+        
+        <details>
+            <summary>Explications</summary>
+            <p>Ceci est une adaptation du jeu Qwixx à des fins d'apprentissage / révision de langages informatiques.</p>
+            <p>Dans un premier temps, l'objectif est de pouvoir jouer en solo et de battre le record de point des autres participant(e)s. On pourra introduire la notion de plusieurs dans un deuxième temps.</p>
+            
+            <h3>Phases de jeu</h3>
+            
+            <h4>calcul éligibilité après lancé de dés ✓</h4>
+            <p><strong>Objectif :</strong> phase durant laquelle les cases que le joueur ou la joueuse peut cocher sont mises en exergue</p>
+            <p>
+                <ol>
+                    <li>case négative</li>
+                    <li>somme des dés blanc<br/>
+                    périmètre : toutes les lignes sauf case de fin de ligne<br/>
+                    condition : la case n'est pas déjà passée ou cochée</li>
+                    <li>somme d'un dé blanc et d'un dé de couleur<br/>
+                    périmètre : ligne de la couleur du dé sauf case de fin de ligne<br/>
+                    condition : la case n'est pas déjà passée ou cochée</li>
+                    <li>cases de fin de ligne (12 ou 2)<br/>
+                    condition : éligible si et seulement si 5 cases sont déjà cochées dans la ligne</li>
+                </ol>
+            </p>
+        
+        
+            <h4>sélection de la ou les cases</h4>
+            <p><strong>Objectif :</strong> phase durant laquelle le joueur ou à la joueuse sélectionne la ou les cases qu'iel souhaite cocher</p>
+            <p>
+                <ol>
+                    <li>le clic est possible uniquement sur une case éligible (voir phase précédente)</li>
+                    <li>au clic</li>
+                        <ul>
+                            <li>la case est sélectionnée -> on propose de valider le choix</li>
+                            <li>sur la feuille de marque, les cases précédentes non cochées et éligibles sont marquées comme passées</li>
+                            <li>on lance un nouveau calcul d'éligibilité</li>
+                                <ul>
+                                    <li>c'est la case négative qui a été choisie : aucune autre case n'est plus éligible à la sélection</li>
+                                    <li>c'est la somme des dés blancs qui a été choisie : la somme des dés blancs n'est plus éligible à la sélection
+                                    </li>
+                                    <li>c'est une combinaison dé couleur / dé blanc qui a été choise : les combinaisons couleur ne sont plus éligibles à la sélection</li>
+                                    <li>cases de fin de ligne (12 ou 2)<br/>
+                        condition : éligible si et seulement si 5 cases sont déjà cochées dans la ligne</li>
+                                </ul>
+                            <li>s'il y en a une éligible, une 2e case peut être sélectionnée et on propose de valider le choix</li>
+                        </ul>
+
+                </ol>
+            </p>
+    
+            <h4>validation</h4>
+            <p><strong>Objectif :</strong> phase durant laquelle on met à jour les données de suivi</p>
+            <p>
+                <ul>
+                    <li>nombre de tours : on incrémente de 1</li>
+                    <li>nombre de cases cochées par ligne : on incrémente de 1 ou 2</li>
+                    <li>nombre de points par ligne : on fait le calcul grâce à la suite Fibonacci(nombre de cases cochées)</li>
+                    <li>nombre de points négatifs : on incrémente de -5 points le cas échéant</li>
+                    <li>nombre de points total : on additionne les nombres de points par ligne, on retranche les points négatifs</li>
+                    <li>on vérifie si les conditions de fin sont remplies, si oui : <br/>
+                        - on vérifie si le score est supérieur au 10e du top 10. Si oui :<br/>
+                        - on propose d'enregistrer sa victoire dans le tableau des championnes</li>
+     
+                </ul>
+            </p>
+        
+        </details>
+     
+        <footer>Crédits : image de cadenas <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">created by IconBaandar</a> <br/>  auteur du Qwixx : Steffen Benndor ; illustrateurices : O. & S. Freudenreich</footer>
+        
+    </body>
+</html>

@@ -1,0 +1,158 @@
+body
+{
+    font-family: sans-serif;
+}
+
+section
+{
+    text-align: center;
+    width: 80%;
+    margin: auto;
+    padding: 1%;
+}
+
+details
+{
+    margin: auto;
+    padding: 5%;
+}
+
+table
+{
+    margin: auto;
+    padding: 10px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    text-align: center;
+    background-color: linen;
+    width: 90%;
+    max-width: 400px;
+}
+
+tr
+{
+    width: 90%;
+    max-width: 400px;
+}
+
+td
+{
+    border: 1px solid grey;
+    border-radius: 5px;
+    min-width: 20px;
+    height: 20px;
+}
+
+.deblanc
+{
+    background-color: white;
+}
+
+.lignerouge
+{
+    background-color: orangered;
+}
+
+.lignejaune
+{
+    background-color: yellow;
+}
+
+.ligneverte
+{
+    background-color: limegreen;
+}
+
+.lignebleue
+{
+    background-color: skyblue;
+}
+
+.resultat
+{
+    background-color: black;
+    color: white;
+}
+
+.casepossibleDBlancs /* selon lancé de dés Blancs */
+{
+    border: 3px black solid;
+}
+
+.casepossibleDCouleur /* selon lancé de dés Blanc + Couleur */
+{
+    border: 3px purple solid;
+}
+
+.casenegative
+{
+    border: 3px grey solid;
+}
+
+.caseimpossible /* case passée */
+{
+    background-image: linear-gradient(45deg, #6303B1, #ff0099);
+    opacity: 0.5;
+}
+
+.caseselectionnee /* choix de Prénom */
+{
+    background:linear-gradient(
+    to bottom right, 
+    transparent  calc(50% - 2px), 
+    blue        calc(50% - 2px), 
+    blue        calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+    ),
+        
+    linear-gradient(
+    to bottom left, 
+    transparent  calc(50% - 2px), 
+    blue        calc(50% - 2px), 
+    blue        calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+  );
+}
+
+.casecochee /* enregistré */
+{    
+    background:linear-gradient(
+    to bottom right, 
+    transparent  calc(50% - 1px), 
+    black        calc(50% - 1px), 
+    black        calc(50% + 1px) , 
+    transparent  calc(50% + 1px) 
+  ),
+        
+    linear-gradient(
+    to bottom left, 
+    transparent  calc(50% - 1px), 
+    black        calc(50% - 1px), 
+    black        calc(50% + 1px) , 
+    transparent  calc(50% + 1px)
+  );
+}
+
+.noborder
+{
+    border-style: none;
+}
+
+footer
+{
+    font-size: 0.7em;
+    background-color: darkslategrey;
+    color: azure;
+    text-align: center;
+    padding: 1%;
+}
+
+a
+{
+    color: yellow;
+}
+
+li
+{
+    padding-top: 10px;
+}
