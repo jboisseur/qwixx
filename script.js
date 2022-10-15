@@ -1,4 +1,3 @@
-// On cherche les dés dans le DOM puis on fait appel à la fonction de lancer pour remplacer la valeur initiale par le résultat du lancer
 function lancerlesdes() {
   min = Math.ceil(1);
   max = Math.floor(6);
@@ -56,10 +55,10 @@ casesNegatives[i].className;
 let toutesLesCellulesDuTableau = Array.from(document.querySelectorAll("#feuille td")).slice(0, 48);
 
 // On crée des tableaux pour chaque ligne
-let touteLaLigneRouge = toutesLesCellulesDuTableau.slice(0, 11);
-let touteLaLigneJaune = toutesLesCellulesDuTableau.slice(12, 23);
-let touteLaLigneVerte = toutesLesCellulesDuTableau.slice(24, 35);
-let touteLaLigneBleue = toutesLesCellulesDuTableau.slice(36, 47);
+let touteLaLigneRouge = toutesLesCellulesDuTableau.slice(0, 12);
+let touteLaLigneJaune = toutesLesCellulesDuTableau.slice(12, 24);
+let touteLaLigneVerte = toutesLesCellulesDuTableau.slice(24, 36);
+let touteLaLigneBleue = toutesLesCellulesDuTableau.slice(36, 48);
 
 // Contrôle de l'éligibilité des dernières cases : il faut que 5 cases au moins soient cochées dans la ligne
 
@@ -91,10 +90,9 @@ nbcaselignejaune = nombreCasesCocheesParLigne(touteLaLigneJaune);
 nbcaseligneverte = nombreCasesCocheesParLigne(touteLaLigneVerte);
 nbcaselignebleue = nombreCasesCocheesParLigne(touteLaLigneBleue);
 
-// Pour les dés blancs : on vérifie tout le tableau moins les dernières cases et on marque les cellules éligibles. 
-// Condition : pas de classe sur la cellule vérifiée
+// Pour les dés blancs : on vérifie tout le tableau 
 function controleEligibiliteDesBlancs(ligne, nbcase){
-    for (let i = 0; i < 11; i++){
+    for (let i = 0; i <= 11; i++){
 
         let celluleFocus =
     ligne[i];
@@ -104,10 +102,12 @@ function controleEligibiliteDesBlancs(ligne, nbcase){
         if(cellClass == "" && ligne[i].innerText == resDBlancs){
             if (i < 10){
                 celluleFocus.classList.add("casepossibleDBlancs")
-        }
+            }
         
-            if (i == 10 && nbcase >= 5){  celluleFocus.classList.add("casepossibleDBlancs");
-               }    
+            if (i == 10 && nbcase >= 5){  
+                celluleFocus.classList.add("casepossibleDBlancs");
+                celluleFocus.nextElementSibling.classList.add("casepossibleDBlancs");
+            }    
        }
         
             else {
@@ -121,11 +121,10 @@ controleEligibiliteDesBlancs(touteLaLigneVerte, nbcaseligneverte);
 controleEligibiliteDesBlancs(touteLaLigneBleue, nbcaselignebleue);
 
 
-// Pour les combinaisons : on vérifie par ligne moins les dernières cases et on marque les cellules éligibles.
-// Conditions : résultat combinaison > résultat dés blancs && pas de classe sur la cellule vérifiée
-function controleEligibiliteLigneCouleur(ligne, couleurDe){
+// Pour les combinaisons : on vérifie par ligne
+function controleEligibiliteLigneCouleur(ligne, couleurDe, nbcase){
 
-    for (let i = 0; i < 11; i++){
+    for (let i = 0; i <= 11; i++){
 
     let celluleFocus =
 ligne[i];        
@@ -136,7 +135,9 @@ ligne[i].className;
         if (ligne[i].innerText == resDesCouleurs[couleurDe] || ligne[i].innerText == resDesCouleurs[couleurDe+1])
         {
             if (i < 10){celluleFocus.classList.add("casepossibleDCouleur")};
-            if (i == 10 && nbcase >= 5){celluleFocus.classList.add("casepossibleDCouleur")};
+            if (i == 10 && nbcase >= 5){
+                celluleFocus.classList.add("casepossibleDCouleur")
+                celluleFocus.nextElementSibling.classList.add("casepossibleDCouleur");};
         }
 
         else {
@@ -145,9 +146,63 @@ ligne[i].className;
     }
 }};
 
-controleEligibiliteLigneCouleur(touteLaLigneRouge, 0);
-controleEligibiliteLigneCouleur(touteLaLigneJaune, 2);
-controleEligibiliteLigneCouleur(touteLaLigneVerte, 4);
-controleEligibiliteLigneCouleur(touteLaLigneBleue, 6);
+controleEligibiliteLigneCouleur(touteLaLigneRouge, 0, nbcaselignerouge);
+controleEligibiliteLigneCouleur(touteLaLigneJaune, 2, nbcaselignejaune);
+controleEligibiliteLigneCouleur(touteLaLigneVerte, 4, nbcaseligneverte);
+controleEligibiliteLigneCouleur(touteLaLigneBleue, 6, nbcaselignebleue);
 
-//document.querySelectorAll("#feuille tr.lignerouge td").addEventListener('click', selectionner() { });
+// On fait une photo des cases éligibles au cas où le bouton "Changer d'avis" est cliqué
+let casesEligibles = Array.from(document.querySelectorAll(".casenegative, .casepossibleDBlancs, .casepossibleDCouleur"));
+let classesCasesEligible = []
+
+// parcourir le tableau casesEligibles pour récupérer les classes et les push il faut faire un tableau avec toutes les classes AS
+for (let i of casesEligibles) {
+    classesCasesEligible.push(i.className);
+    };
+
+let casesEligiblesNS = casesEligibles;
+
+
+// Fonction qui autorise le clic le bouton de validation et d'annulation
+let bouttons = document.getElementsByTagName("input");
+function ValiderOuAnnuler(){    
+    for (let i of bouttons) {
+            i.disabled = false;
+            };
+    };
+
+// Fonction qui interdit le clic sur le bouton de validation et d'annulation
+function desactiverValiderOuAnnuler(){    
+    for (let i of bouttons) {
+            i.disabled = true;
+            };
+    };
+
+// Fonction qui sélectionne une case et qui permet le clic sur les boutons de validation ou d'annulation
+function selectionnerUneCase(element, ancienneclasse){
+            element.classList.replace(ancienneclasse, "caseselectionnee");
+            ValiderOuAnnuler();      
+            };
+
+for (let i of casesEligiblesNS){    
+        let cellClass = i.className;
+        i.addEventListener("click", function(){
+        selectionnerUneCase(i, cellClass);
+                })
+        };
+
+// Fonction qui permet de remettre l'array à l'état initial
+function retourArriere(element, nouvelleclasse){
+    element.classList.replace("caseselectionnee", nouvelleclasse);
+    desactiverValiderOuAnnuler()
+    // il faut aussi prévoir de re-désactiver les boutons
+};
+
+bouttons[1].addEventListener("click", function(){
+    let j = 0;
+    for (let i of casesEligibles) {
+        let cellClass = classesCasesEligible[j];
+        retourArriere(i, cellClass);
+        j++
+        }
+    });

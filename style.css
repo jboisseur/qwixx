@@ -3,7 +3,7 @@ body
     font-family: sans-serif;
 }
 
-section
+section, #validation
 {
     text-align: center;
     width: 80%;
