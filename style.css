@@ -3,7 +3,7 @@ body
     font-family: sans-serif;
 }
 
-section
+section, #validation
 {
     text-align: center;
     width: 80%;
@@ -81,7 +81,7 @@ td
 
 .casepossibleDCouleur /* selon lancé de dés Blanc + Couleur */
 {
-    border: 3px purple solid;
+    border: 3px purple dotted;
 }
 
 .casenegative
