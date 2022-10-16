@@ -1,141 +1,178 @@
 <!DOCTYPE html> 
-<html>
+<html lang="fr">
     <head>
         <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Adaptation web du Qwixx à des fins d'apprentissage. Le Qwixx est un jeu de dés de Steffen Benndor adapté et distribué en physique par Gigamic" />
         <link rel="stylesheet" href="style.css" />
+        <script src="https://kit.fontawesome.com/7d59c9faf1.js" crossorigin="anonymous"></script>
         <script type="text/javascript" src="script.js" defer></script>
-        <title>Qwixx - étape 1</title>
+        <title>Jouez au Qwixx en ligne !</title>
     </head>
     <body>
-        
-        <section>
-            <table>
-                <th colspan = "10">Lancé de dés</th>
-                <tr class="lance">
-                    <td class="deblanc" id="DBlanc1"></td>
-                    <td class="deblanc" id="DBlanc2"></td>
-                    <td class="lignerouge" id="DRed" colspan="2"></td>
-                    <td class="lignejaune" id="DYellow" colspan="2"></td>
-                    <td class="ligneverte" id="DGreen" colspan="2"></td>
-                    <td class="lignebleue" id="DBlue" colspan="2"></td>
-                </tr>
-                
-                <!-- DEBUT de la partie optionnelle
-                Explication : pour les besoins des tests, on affiche une ligne présentant les 9 résultats possibles
-                ATTENTION : quand on effacera l'aide visuelle, penser à supprimer les fusions de colonnes des dés de couleur au-dessus (colspan = "2") + celui du titre (remettre à 6) -->
-                
+
+        <header>
+            <div id="whoIsMainPlayer">C'est le tour de votre adversaire !</div>
+
+            <div id="rules">
+                <a href="#" title="Règles du jeu">
+                    &#128466;
+                </a> 
+                <a href="#credits" title="Crédits">
+                    &#128736;
+                </a>
+        </header>
+
+        <main>
+
+        <section id="player2">
+            <table class="small">
+                <th colspan = "10">Situation de l'adversaire</th>
                 <tr>
-                    <td colspan="2" id="DBlanc1+DBlanc2"></td>
-                    <td id="DBlanc1+DRed"></td>
-                    <td id="DBlanc2+DRed"></td>
-                    <td id="DBlanc1+DYellow"></td>
-                    <td id="DBlanc2+DYellow"></td>
-                    <td id="DBlanc1+DGreen"></td>
-                    <td id="DBlanc2+DGreen"></td>
-                    <td id="DBlanc1+DBlue"></td>
-                    <td id="DBlanc2+DBlue"></td>               
+                    <td>Cases cochées</td>
+                    <td class="lignerouge">5</td>
+                    <td class="lignejaune">2</td>
+                    <td class="ligneverte">0</td>
+                    <td class="lignebleue">1</td>
+                </tr>
+                <tr>
+                    <td>Points obtenus</td>
+                    <td class="lignerouge">15</td>
+                    <td class="lignejaune">3</td>
+                    <td class="ligneverte">0</td>
+                    <td class="lignebleue">1</td>
+                </tr>
+                <tr>
+                    <td>Cases négatives</td>
+                    <td>x</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>          
+            </table>
+        </section>
+
+        <section id="lancededes">
+            <div id="desblancs">
+                <div id="DBlanc1" class="deblanc fondblanc"></div>
+                <div id="DBlanc2" class="deblanc fondblanc"></div>
+            </div>
+            <div id="descouleur">
+                <div id="DRed" class="derouge fondblanc"></div>
+                <div id="DYellow" class="dejaune fondblanc"></div>
+                <div id="DGreen" class="devert fondblanc"></div>
+                <div id="DBlue" class="debleu fondblanc"></div>
+            </div>
+        </section>
+
+        <section id="player1">
+            <table id="feuille">             
+                <th colspan="12">Votre feuille de marque</th>
+                <!-- Pour les besoins des tests, on a forcé l'ajout de classes aux <td> de la <table> #feuille mais elles doivent être enlevées pour la production -->
+                <tr class="lignerouge">
+                    <td class = "caseimpossible">2</td>
+                    <td class = "caseimpossible">3</td>
+                    <td class = "caseimpossible">4</td>
+                    <td class = "casecochee">5</td>
+                    <td class = "casecochee">6</td>
+                    <td class = "casecochee">7</td>
+                    <td class = "casecochee">8</td>
+                    <td class = "casecochee">9</td>
+                    <td>10</td>
+                    <td>11</td>
+                    <td>12</td>
+                    <td id="LRfin"><img src="open-lock.png"/></td>
                 </tr>
                 
-                <!-- FIN de la partie optionnelle -->
-            
+                <tr class="lignejaune">
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>10</td>
+                    <td>11</td>
+                    <td>12</td>
+                    <td id = "LYfin"><img src = "open-lock.png"/></td>
+                </tr>
+                
+                <tr class= "ligneverte">
+                    <td class = "caseimpossible">12</td>
+                    <td class = "caseimpossible">11</td>
+                    <td class = "casecochee">10</td>
+                    <td class = "casecochee">9</td>
+                    <td class = "casecochee">8</td>
+                    <td class = "casecochee">7</td>
+                    <td class = "casecochee">6</td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td id = "LGfin"><img src = "open-lock.png"/></td>
+                </tr>
+                
+                <tr class = "lignebleue">
+                    <td>12</td>
+                    <td>11</td>
+                    <td>10</td>
+                    <td>9</td>
+                    <td>8</td>
+                    <td>7</td>
+                    <td>6</td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td id = "LBfin"><img src = "open-lock.png"/></td>
+                </tr>            
+                    
+                <tr id = "moins5">
+                    <td colspan = "7" class = "noborder"></td>
+                    <td class = "casecochee">-5</td>
+                    <td>-5</td>
+                    <td>-5</td>
+                    <td>-5</td>            
+                </tr>
             </table>
-        
+
+            <div id = "validation">
+                <form>
+                    <input type="submit" value="Valider" disabled>
+                    <input type="button" value="Changer d'avis" disabled>
+                </form>
+            </div>
+
+            <table class="small">
+                <th colspan = "10">Votre situation</th>
+                <tr>
+                    <td>Cases cochées</td>
+                    <td class="lignerouge">5</td>
+                    <td class="lignejaune">0</td>
+                    <td class="ligneverte">5</td>
+                    <td class="lignebleue">0</td>
+                </tr>
+                <tr>
+                    <td>Points obtenus</td>
+                    <td class="lignerouge">15</td>
+                    <td class="lignejaune">0</td>
+                    <td class="ligneverte">15</td>
+                    <td class="lignebleue">0</td>
+                </tr>
+                <tr>
+                    <td>Cases négatives</td>
+                    <td>x</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>          
+            </table>
         </section>
         
-        <table id = "feuille">
-            
-            <th colspan = "12">Feuille de marque de <span id="prenom">Prénom</span></th>
-            
-            <!-- Pour les besoins des tests, on a forcé l'ajout de classes aux <td> de la <table> #feuille mais elles doivent être enlevées pour la production -->
-            
-            <tr class = "lignerouge">
-                <td class = "caseimpossible">2</td>
-                <td class = "caseimpossible">3</td>
-                <td class = "caseimpossible">4</td>
-                <td class = "casecochee">5</td>
-                <td class = "casecochee">6</td>
-                <td class = "casecochee">7</td>
-                <td class = "casecochee">8</td>
-                <td class = "casecochee">9</td>
-                <td>10</td>
-                <td>11</td>
-                <td>12</td>
-                <td id="LRfin"><img src="open-lock.png"/></td>
-            </tr>
-            
-            <tr class= "lignejaune">
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-                <td>8</td>
-                <td>9</td>
-                <td>10</td>
-                <td>11</td>
-                <td>12</td>
-                <td id = "LYfin"><img src = "open-lock.png"/></td>
-            </tr>
-            
-            <tr class= "ligneverte">
-                <td class = "caseimpossible">12</td>
-                <td class = "caseimpossible">11</td>
-                <td class = "casecochee">10</td>
-                <td class = "casecochee">9</td>
-                <td class = "casecochee">8</td>
-                <td class = "casecochee">7</td>
-                <td class = "casecochee">6</td>
-                <td>5</td>
-                <td>4</td>
-                <td>3</td>
-                <td>2</td>
-                <td id = "LGfin"><img src = "open-lock.png"/></td>
-            </tr>
-            
-            <tr class = "lignebleue">
-                <td>12</td>
-                <td>11</td>
-                <td>10</td>
-                <td>9</td>
-                <td>8</td>
-                <td>7</td>
-                <td>6</td>
-                <td>5</td>
-                <td>4</td>
-                <td>3</td>
-                <td>2</td>
-                <td id = "LBfin"><img src = "open-lock.png"/></td>
-            </tr>            
-                
-            <tr id = "moins5">
-                <td colspan = "7" class = "noborder"></td>
-                <td class = "casecochee">-5</td>
-                <td>-5</td>
-                <td>-5</td>
-                <td>-5</td>            
-            </tr>
-            
-            <tr>
-                <td colspan = "12">Résultats</td>         
-            </tr>
-            
-            <tr class="resultats">
-               <td colspan = "2" class = "lignerouge" id = "totalrouge">0</td>
-                <td colspan = "2" class = "lignejaune" id = "totaljaune">0</td>
-                <td colspan = "2" class = "ligneverte" id = "totalvert">0</td>
-                <td colspan = "2" class = "lignebleue" id = "totalbleu">0</td>
-                <td colspan="2" id = "totalnegatif">0</td>
-                <td colspan="2" class = "resultat" id="resultat">0</td>
-            </tr>
-        </table>
-
-        <div id = "validation">
-            <form>
-                <input type="submit" value="Valider" disabled>
-                <input type="button" value="Changer d'avis" disabled>
-            </form>
-        </div>
+        
+    </main>
         
         <details>
             <summary>Explications</summary>
@@ -203,7 +240,7 @@
         
         </details>
      
-        <footer>Crédits : image de cadenas <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">created by IconBaandar</a> <br/>  auteur du Qwixx : Steffen Benndor ; illustrateurices : O. & S. Freudenreich</footer>
+        <footer id="credits">Crédits : image de cadenas <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">created by IconBaandar</a> <br/>  auteur du Qwixx : Steffen Benndor ; illustrateurices : O. & S. Freudenreich</footer>
         
     </body>
 </html>

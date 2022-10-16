@@ -1,31 +1,61 @@
 function lancerlesdes() {
   min = Math.ceil(1);
   max = Math.floor(6);
-  return Math.floor(Math.random() * (max - min +1)) + min;
+  return Math.floor(Math.random() * (max - min +1)) + min; 
 }
 
-let DBlanc1 = document.getElementById("DBlanc1").textContent = lancerlesdes();
-let DBlanc2 = document.getElementById("DBlanc2").textContent = lancerlesdes();
-let DRed = document.getElementById("DRed").textContent = lancerlesdes();
-let DYellow = document.getElementById("DYellow").textContent = lancerlesdes();
-let DGreen = document.getElementById("DGreen").textContent = lancerlesdes();
-let DBlue = document.getElementById("DBlue").textContent = lancerlesdes();
+function afficherde(de) {
+    switch (de){
+        case 1:
+            char = "&#9856;";
+            break;
+        case 2:
+            char = "&#9857;"
+            break;
+        case 3:
+            char = "&#9858;"
+            break;
+        case 4:
+            char = "&#9859;"
+            break;
+        case 5:
+            char = "&#9860;"
+            break;
+        case 6:
+            char = "&#9861;"
+            break;
+      }
+    
+      return char;
+}
 
-// On affiche temporairement le résultat des additions de dés
-// Il suffira d'enlever la partie "= document.getElementById("ID").textContent"
 function additionner(de1, de2) {
     return de1 + de2;
 }
 
-let resDBlancs = document.getElementById("DBlanc1+DBlanc2").textContent = additionner(DBlanc1, DBlanc2);
-let resDRed1 = document.getElementById("DBlanc1+DRed").textContent = additionner(DBlanc1, DRed);
-let resDRed2 = document.getElementById("DBlanc2+DRed").textContent = additionner(DBlanc2, DRed);
-let resDYellow1 = document.getElementById("DBlanc1+DYellow").textContent = additionner(DBlanc1, DYellow);
-let resDYellow2 = document.getElementById("DBlanc2+DYellow").textContent = additionner(DBlanc2, DYellow);
-let resDGreen1 = document.getElementById("DBlanc1+DGreen").textContent = additionner(DBlanc1, DGreen);
-let resDGreen2 = document.getElementById("DBlanc2+DGreen").textContent = additionner(DBlanc2, DGreen);
-let resDBlue1 = document.getElementById("DBlanc1+DBlue").textContent = additionner(DBlanc1, DBlue);
-let resDBlue2 = document.getElementById("DBlanc2+DBlue").textContent = additionner(DBlanc2, DBlue);
+let DBlanc1 = lancerlesdes();
+let DBlanc2 = lancerlesdes();
+let DRed = lancerlesdes();
+let DYellow = lancerlesdes();
+let DGreen = lancerlesdes();
+let DBlue = lancerlesdes();
+
+document.getElementById("DBlanc1").innerHTML = afficherde(DBlanc1);
+document.getElementById("DBlanc2").innerHTML = afficherde(DBlanc2);
+document.getElementById("DRed").innerHTML = afficherde(DRed);
+document.getElementById("DYellow").innerHTML = afficherde(DYellow);
+document.getElementById("DGreen").innerHTML = afficherde(DGreen);
+document.getElementById("DBlue").innerHTML = afficherde(DBlue);
+
+let resDBlancs = additionner(DBlanc1, DBlanc2);
+let resDRed1 = additionner(DBlanc1, DRed);
+let resDRed2 = additionner(DBlanc2, DRed);
+let resDYellow1 = additionner(DBlanc1, DYellow);
+let resDYellow2 = additionner(DBlanc2, DYellow);
+let resDGreen1 = additionner(DBlanc1, DGreen);
+let resDGreen2 = additionner(DBlanc2, DGreen);
+let resDBlue1 = additionner(DBlanc1, DBlue);
+let resDBlue2 = additionner(DBlanc2, DBlue);
 
 const resDesCouleurs = [resDRed1, resDRed2, resDYellow1, resDYellow2, resDGreen1, resDGreen2, resDBlue1, resDBlue2];
 
@@ -217,9 +247,6 @@ function caseSelectionnable(element){
         }
 
     if(classesCombinaison.includes("caseselectionnee")){
-
-        console.log("entre ici Jean Moulin")
-
         if (element.className == "casepossibleDCouleur" | element.className == "casenegative"){
             return false
         }
@@ -252,9 +279,11 @@ function caseSelectionnable(element){
 // Fonction qui sélectionne une case et qui permet le clic sur les boutons de validation ou d'annulation
 function selectionnerUneCase(element, ancienneclasse){
         if(caseSelectionnable(element) == true){
+            element.classList.remove();
             element.classList.replace(ancienneclasse, "caseselectionnee");
             // si l'élément est le dernier de la liste, on coche aussi le NextElementSibling (= cadenas)
             if(element.cellIndex == 10){
+                element.classList.remove();
                 element.nextElementSibling.classList.replace(ancienneclasse, "caseselectionnee");
             }            
 
