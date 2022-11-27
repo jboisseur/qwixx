@@ -1,3 +1,39 @@
+// Steps:
+// #1 Set up the game: set the score to 0
+// #2 Run game loop:
+//    2.1 Verify wether the end of game conditions are reached
+//        2.1.1 Yes: go to Step 3
+//        2.1.2 No: go to Step 2.2
+//    2.2 Run a list of actions:
+//        2.2.1 Dices
+//              2.2.1.1 Roll dices
+//              2.2.1.2 Display result
+//              2.2.1.3 Calculate all possible sums
+//        2.2.2 Elegibility
+//              2.2.2.1 Calculte authorized moves
+//              2.2.2.2 Display authorized moves
+//        2.2.3 Move selection
+//              2.2.3.1 Calculate score-to-be
+//              2.2.3.2 Display score-to-be
+//              2.2.3.3 If move-to-be remaining = 1, run again the Eligibility phase
+//        2.2.4 Save progress
+//              2.2.4.1 No: unselect all moves and run again the Eligibility phase
+//              2.2.4.2 Yes: go to step 2.2.5     
+//        2.2.5 End of turn
+//              2.2.4.2 Turn "move-to-be" to "move" class
+//              2.2.4.2 Calculate score
+//              2.2.4.3 Display score
+//              2.2.4.4 If need be, update end of game conditions
+// #3 End of game
+//    3.1 Display final score
+//    3.2 Display a play again button which triggers Step 1 when pressed
+
+// #1
+let finalScore = 0;
+
+// #2
+do... while
+
 function lancerlesdes() {
   min = Math.ceil(1);
   max = Math.floor(6);
