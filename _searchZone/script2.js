@@ -1,30 +1,6 @@
 // Game setup
-var finalScore = 0;
-
+var finalScore = 0, diceArray = [], sumsArray = [];
 const diceCharList = ["&#9856;", "&#9857;", "&#9858;", "&#9859;", "&#9860;", "&#9861;"] // List of characters representing dice faces, from 1 to 6
-
-var diceArray = [];
-
-var sumsArray = [];
-
-var gameSheet = [
-    [], // red line (from 2 to 12)
-    [], // yellow line (from 2 to 12)
-    [], // green line (from 12 to 2)
-    [], // blue line (from 12 to 2)
-    0   // negative line (up to 4)
-];
-
-var elegibleSheet = gameSheet;
-
-// For test purposes, here's a game sheet with some cells already checked
-gameSheet = [
-    [5, 6, 7, 8, 9],
-    [],
-    [10, 9, 8, 7, 6],
-    [],
-    2
-];
 
     // Set of functions
         function gameOver (nbOfLinesClosed, nbOfNegativeCellsChecked) {
@@ -56,11 +32,13 @@ gameSheet = [
         }
 
 // Game loop
-do {
+//do {
     // Roll the 6 dices
     for (i = 0; i < 6; i++) {
         diceArray.push(rollDice());
     };
+
+    console.log(document.getElementById("DBlanc1"));
 
     // Display result of rolling dices
     document.getElementById("DBlanc1").innerHTML = displayDice(diceArray[0]);
@@ -77,34 +55,17 @@ do {
     for (i = 1; i < 5; i++) {
         sumsArray.push(sumDices(diceArray[1], diceArray[i+1]));
     };
-
-    // Calculate authorized moves
-        // Player can always choose to select -5 points
-        elegibleSheet[4] = 1;
-
-        // Run a loop for increasing and decrasing lines
-            // Red line = gameSheet/elegibleSheet index 0
-            // Numbers to check: sumsArray from index 0 (white sum) to 2 (index 1 and 2 are red dices)
-               for (i = 0; i < 3; i++) {
-                    if (sumsArray[i] > maxFromArray(...gameSheet[0])) {
-                        elegibleSheet[0].push.sumsArray[i];
-                    };
-                };
-        
-
-
-    // Display elegible sheet (connection with HTML required)
     
     // Listen to player's choice
-    do {
+ /*   do {
         }
 
-        while(turnOver() == false);
+        while(!turnOver()); */
     
     // Copy choice to gameSheet
     
-}
+// }
 
-while (gameOver() == false);
+// while (!gameOver());
 
 // Game ends
