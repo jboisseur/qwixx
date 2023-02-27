@@ -1,7 +1,7 @@
 // Variables
 const diceCharList = ["&#9856;", "&#9857;", "&#9858;", "&#9859;", "&#9860;", "&#9861;"] // List of characters representing dice faces, from 1 to 6
 let allTableCells = Array.from(document.getElementsByTagName("td"));
-let nbOfCheckedCellPerLine = [0, 0, 0, 0];
+let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0];
 let lineClosed = 0, points = 0; 
 
 // Functions
@@ -51,7 +51,7 @@ let lineClosed = 0, points = 0;
     }
 
     // Functions that help calculating the results
-    function addCount(row) {
+    function addPoints(row) {
         if (row == "redbg") {
             nbOfCheckedCellPerLine[0] += 1;
             points += nbOfCheckedCellPerLine[0];
@@ -73,6 +73,11 @@ let lineClosed = 0, points = 0;
         }
     }
 
+    function removePoints() {
+        nbOfCheckedCellPerLine[4] += 1;
+        points -= 5;
+    }
+
 
 // Game loop
 for (let cell of allTableCells) {
@@ -81,18 +86,23 @@ for (let cell of allTableCells) {
     cell.addEventListener("click", function(){
         check(cell);
 
-        // Count number of checked cells per line
-        addCount(cell.parentElement.classList);
+        // Add points according to number of checked cells per line
+        addPoints(cell.parentElement.classList);
+
+        // Remove points according to number of checked cell on -5 line
+        if (cell.parentElement.rowIndex == 5) {
+            removePoints();
+        }
 
         // Last cell of a line?
         if (cell.cellIndex == 10) {
             lineClosed += 1;
-            addCount(cell.parentElement.classList);
+            addPoints(cell.parentElement.classList);
+        }
 
-            // Two lines are closed: end of game
-            if (lineClosed == 2) {
+            // Two lines are closed or 4 negative cells are checked: end of game
+            if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
                document.getElementById("messageZone").innerHTML = "End of game! You have " + points + " points.";
             }
-        }
     });
 }
