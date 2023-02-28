@@ -47,62 +47,82 @@ let lineClosed = 0, points = 0;
 
     // Functions that apply a particular class
     function check(cell) {
-        cell.classList.add("checkCell");
+        cell.className == "" ? cell.classList.add("checkCell") : cell.classList.remove("checkCell");
     }
 
     // Functions that help calculating the results
-    function addPoints(row) {
-        if (row == "redbg") {
-            nbOfCheckedCellPerLine[0] += 1;
-            points += nbOfCheckedCellPerLine[0];
+    function verifyClassBeforeAddingPoints (rowIndex, className) {
+        if (className == "checkCell") {
+            nbOfCheckedCellPerLine[rowIndex] += 1;
+            points += nbOfCheckedCellPerLine[rowIndex];
         }
-
-        if (row == "yellowbg") {
-            nbOfCheckedCellPerLine[1] += 1;
-            points += nbOfCheckedCellPerLine[1];
-        }
-
-        if (row == "greenbg") {
-            nbOfCheckedCellPerLine[2] += 1;
-            points += nbOfCheckedCellPerLine[2];
-        }
-
-        if (row == "bluebg") {
-            nbOfCheckedCellPerLine[3] += 1;
-            points += nbOfCheckedCellPerLine[3];
+        else {                
+            points -= nbOfCheckedCellPerLine[rowIndex];
+            nbOfCheckedCellPerLine[rowIndex] -= 1;
         }
     }
 
-    function removePoints() {
-        nbOfCheckedCellPerLine[4] += 1;
-        points -= 5;
+    function addPoints(row, className) {
+        row == "redbg" ? verifyClassBeforeAddingPoints(0, className) : null;
+        row == "yellowbg" ? verifyClassBeforeAddingPoints(1, className) : null;
+        row == "greenbg" ? verifyClassBeforeAddingPoints(2, className) : null;
+        row == "bluebg" ? verifyClassBeforeAddingPoints(3, className) : null;
+    }
+
+    function removePoints(className) {
+        if (className == "checkCell") {
+            nbOfCheckedCellPerLine[4] += 1;
+            points -= 5;
+        }
+        else {                
+            points += 5;
+            nbOfCheckedCellPerLine[4] -= 1;
+        }        
     }
 
 
 // Game loop
 for (let cell of allTableCells) {
+    let cellClassName, rowOfCell, rowClassName;
 
-    // If player clicks on a cell
-    cell.addEventListener("click", function(){
-        check(cell);
+    // If player clicks on a cell (don't listen to the blank one)
+    if (!cell.hasAttribute("colspan")) {
+    
+        cell.addEventListener("click", function(){
+            // Update variable value for row information
+            rowOfCell = cell.parentElement;
+            rowClassName = rowOfCell.classList;
 
-        // Add points according to number of checked cells per line
-        addPoints(cell.parentElement.classList);
+            // Apply CSS class
+            check(cell);
 
-        // Remove points according to number of checked cell on -5 line
-        if (cell.parentElement.rowIndex == 5) {
-            removePoints();
-        }
+            // Update variable value for cellClass
+            cellClassName = cell.className;
 
-        // Last cell of a line?
-        if (cell.cellIndex == 10) {
-            lineClosed += 1;
-            addPoints(cell.parentElement.classList);
-        }
+            // Add points according to number of checked cells per line
+            addPoints(rowClassName, cellClassName);
+
+            // Remove points according to number of checked cell on -5 line
+            if (rowOfCell.rowIndex == 5) {
+                removePoints(cellClassName);
+            }
+
+            // Last cell of a line?
+            if (cell.cellIndex == 10) {
+                addPoints(rowClassName, cellClassName);
+                cellClassName == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
+            }
+
+            /* This section to verify points and nb of checked cells per line during game loop
+
+            document.getElementById("messageZone").innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4];
+
+            */
 
             // Two lines are closed or 4 negative cells are checked: end of game
             if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
-               document.getElementById("messageZone").innerHTML = "End of game! You have " + points + " points.";
+                document.getElementById("messageZone").innerHTML = "End of game! You have " + points + " points.";
             }
-    });
+        });
+    }
 }
