@@ -135,15 +135,23 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
        move == 0 ? disableButton() : null;
     }
 
+    function displayPoints(rowIndex, points) {
+        rowIndex == 0 ? redPointsZone.innerHTML = points : null;
+        rowIndex == 1 ? yellowPointsZone.innerHTML = points : null;
+        rowIndex == 2 ? greenPointsZone.innerHTML = points : null;
+        rowIndex == 3 ? bluePointsZone.innerHTML = points : null;
+        rowIndex == 4 ? minusPointsZone.innerHTML = points : null;
+    }
+
     function verifyClassBeforeAddingPoints (rowIndex, className) {  
         if (className == "checkCell") {
             nbOfCheckedCellPerLine[rowIndex] += 1;
-            points += nbOfCheckedCellPerLine[rowIndex];        
+            points += nbOfCheckedCellPerLine[rowIndex];    
         }
 
         else if (className == undefined) {                
             points -= nbOfCheckedCellPerLine[rowIndex];
-            nbOfCheckedCellPerLine[rowIndex] -= 1;            
+            nbOfCheckedCellPerLine[rowIndex] -= 1;           
         }
     }
 
@@ -189,7 +197,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         
                     // Last cell of a line?
                     if (cell.cellIndex == 10) {
-                        addPoints(rowClassName, cellClassName);
+                        addPoints(rowIndex, cellClassName);
                         cellClassName == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
                     }
 
