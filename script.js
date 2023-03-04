@@ -1,5 +1,7 @@
+/* TODO : afficher le nombre de points par ligne en cours de route pour vérifications */
+
 // Variables
-const diceCharList = ["&#9856;", "&#9857;", "&#9858;", "&#9859;", "&#9860;", "&#9861;"] // List of characters representing dice faces, from 1 to 6
+const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
     // From HTML
     const allTableCells = Array.from(document.getElementsByTagName("td"));
@@ -51,23 +53,12 @@ const diceCharList = ["&#9856;", "&#9857;", "&#9858;", "&#9859;", "&#9860;", "&#
 
     function displayDices(diceArray) {
         displayDicesZone.innerHTML = "";
-        for (i in diceArray) {
-            if (i == 0 || i == 1) {
-                displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }
-            if (i == 2) {
-                displayDicesZone.innerHTML += '<span class="red">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }
-            if (i == 3) {
-                displayDicesZone.innerHTML += '<span class="yellow">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }
-            if (i == 4) {
-                displayDicesZone.innerHTML += '<span class="green">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }
-            if (i == 5) {
-                displayDicesZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }
-        }
+        displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[0] - 1] + '</span> ';
+        displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[1] - 1] + '</span> ';
+        displayDicesZone.innerHTML += '<span class="red">' + diceCharList[diceArray[2] - 1] + '</span> ';
+        displayDicesZone.innerHTML += '<span class="yellow">' + diceCharList[diceArray[3] - 1] + '</span> ';
+        displayDicesZone.innerHTML += '<span class="green">' + diceCharList[diceArray[4] - 1] + '</span> ';
+        displayDicesZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
     }
 
     // "Check a cell" function (change class, count moves, add points)
