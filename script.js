@@ -1,10 +1,37 @@
 // Variables
 const diceCharList = ["&#9856;", "&#9857;", "&#9858;", "&#9859;", "&#9860;", "&#9861;"] // List of characters representing dice faces, from 1 to 6
-let allTableCells = Array.from(document.getElementsByTagName("td"));
-let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0];
-let lineClosed = 0, points = 0; 
+
+    // From HTML
+    const allTableCells = Array.from(document.getElementsByTagName("td"));
+    const displayDicesZone = document.getElementById("displayDices");
+    const messageZone = document.getElementById("messageZone");
+    const button = document.getElementById("rollDicesButton");
+
+    // Initialize data
+    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0];
+    let lineClosed = 0, points = 0, move = 0;
+
+    // Declare variables
+    let cellClassName, rowOfCell, rowClassName;
 
 // Functions
+    // Begin new turn: roll dices, disable button, reset number of moves and listen to player next move
+    function newTurn() {
+        rollDices();
+        disableButton();
+        move = 0;
+        messageZone.innerHTML = "";
+    }
+
+    // Disable / enable Roll dices button
+    function disableButton() {
+        button.setAttribute("disabled", "");
+    }
+
+    function enableButton() {
+        button.removeAttribute("disabled");
+    }
+
     // Roll and display dices
     function rollDice() {
         min = Math.ceil(1);
@@ -23,12 +50,10 @@ let lineClosed = 0, points = 0;
     }
 
     function displayDices(diceArray) {
-        let displayDicesZone = document.getElementById("displayDices");
         displayDicesZone.innerHTML = "";
-
         for (i in diceArray) {
             if (i == 0 || i == 1) {
-                displayDicesZone.innerHTML += diceCharList[diceArray[i] - 1] + ' ';
+                displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[i] - 1] + '</span> ';
             }
             if (i == 2) {
                 displayDicesZone.innerHTML += '<span class="red">' + diceCharList[diceArray[i] - 1] + '</span> ';
@@ -41,88 +66,152 @@ let lineClosed = 0, points = 0;
             }
             if (i == 5) {
                 displayDicesZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[i] - 1] + '</span> ';
-            }    
-        } 
+            }
+        }
     }
 
-    // Functions that apply a particular class
-    function check(cell) {
-        cell.className == "" ? cell.classList.add("checkCell") : cell.classList.remove("checkCell");
+    // "Check a cell" function (change class, count moves, add points)
+    function check(cell, rowIndex) {        
+
+        cellClassName = cell.className;
+
+        // Allow player to uncheck if checked within a turn
+        if (cellClassName == "checkCell" && move > 0) {
+            cell.classList.remove("checkCell");
+            cellClassName = undefined;
+            messageZone.innerHTML = "";
+                
+            countMove(rowIndex, cellClassName);
+        }
+
+        // Apply checkCell class on certain conditions
+        if (cellClassName == "" && move >= 0) {
+
+            // Don't do anything on -5 line if a cell is already checked on main grid
+            if (rowIndex == 5 && move >= 1) {
+                cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
+            }
+
+            // Apply checkCell class if the maximum of moves is not reached            
+            else if (move < 2) {
+                cell.classList.add("checkCell");
+                cellClassName = "checkCell"; 
+                countMove(rowIndex, cellClassName);
+            }
+            
+            // Indicate to the player why s.he can't check any more cell
+            else {
+                messageZone.innerHTML = "No more moves! Unselect or roll dices again.<br/>";
+                cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
+            }
+        }
+
+        // Add points according to number of checked cells per line and record +1 move
+        addPoints(rowIndex, cellClassName);
     }
 
-    // Functions that help calculating the results
-    function verifyClassBeforeAddingPoints (rowIndex, className) {
+    // Functions that help calculating the results and counting moves
+    function countMove(rowIndex, className) {
+        // Main grid 
+        if (rowIndex >= 1 && rowIndex <= 4) {            
+
+            // Main grid and cell checked: count + 1 move
+            if (className == "checkCell") {
+                move ++;
+            }
+
+             // Main grid and cell unchecked: count - 1 move
+             if (className == undefined) {
+                move --;
+             }
+        }
+
+        // -5 line
+        if (rowIndex == 5) {
+
+            // -5 line and cell checked: count + 2 moves
+            if (className == "checkCell") {
+                move += 2;
+            }
+
+            // -5 line and cell unchecked: count - 2 moves
+            if (className == undefined) {
+                move -=2;
+            }
+        }
+
+       move >= 1 ? enableButton() : null;
+       move == 0 ? disableButton() : null;
+    }
+
+    function verifyClassBeforeAddingPoints (rowIndex, className) {  
         if (className == "checkCell") {
             nbOfCheckedCellPerLine[rowIndex] += 1;
-            points += nbOfCheckedCellPerLine[rowIndex];
+            points += nbOfCheckedCellPerLine[rowIndex];        
         }
-        else {                
+
+        else if (className == undefined) {                
             points -= nbOfCheckedCellPerLine[rowIndex];
-            nbOfCheckedCellPerLine[rowIndex] -= 1;
+            nbOfCheckedCellPerLine[rowIndex] -= 1;            
         }
     }
 
-    function addPoints(row, className) {
-        row == "redbg" ? verifyClassBeforeAddingPoints(0, className) : null;
-        row == "yellowbg" ? verifyClassBeforeAddingPoints(1, className) : null;
-        row == "greenbg" ? verifyClassBeforeAddingPoints(2, className) : null;
-        row == "bluebg" ? verifyClassBeforeAddingPoints(3, className) : null;
+    function addPoints(rowIndex, cellClassName) {     
+        rowIndex == 1 ? verifyClassBeforeAddingPoints(0, cellClassName) : null;
+        rowIndex == 2 ? verifyClassBeforeAddingPoints(1, cellClassName) : null;
+        rowIndex == 3 ? verifyClassBeforeAddingPoints(2, cellClassName) : null;
+        rowIndex == 4 ? verifyClassBeforeAddingPoints(3, cellClassName) : null;
+        rowIndex == 5 ? removePoints(cellClassName) : null;
     }
 
-    function removePoints(className) {
-        if (className == "checkCell") {
+    function removePoints(cellClassName) {
+        if (cellClassName == "checkCell") {
             nbOfCheckedCellPerLine[4] += 1;
             points -= 5;
         }
-        else {                
+        if (cellClassName == undefined) {                
             points += 5;
             nbOfCheckedCellPerLine[4] -= 1;
         }        
     }
 
+    // Game loop
+        for (let cell of allTableCells) {  
+        
+            // If player clicks on a cell (don't listen to the blank one)
+            if (!cell.hasAttribute("colspan")) {
 
-// Game loop
-for (let cell of allTableCells) {
-    let cellClassName, rowOfCell, rowClassName;
+                
 
-    // If player clicks on a cell (don't listen to the blank one)
-    if (!cell.hasAttribute("colspan")) {
-    
-        cell.addEventListener("click", function(){
-            // Update variable value for row information
-            rowOfCell = cell.parentElement;
-            rowClassName = rowOfCell.classList;
+                cell.addEventListener("click", function() {
 
-            // Apply CSS class
-            check(cell);
+                    if (displayDicesZone.innerText != "") {
 
-            // Update variable value for cellClass
-            cellClassName = cell.className;
+                    // Update variable value for row information
+                    rowOfCell = cell.parentElement;
+                    rowClassName = rowOfCell.classList;
+                    rowIndex = rowOfCell.rowIndex;
 
-            // Add points according to number of checked cells per line
-            addPoints(rowClassName, cellClassName);
+                    // Apply CSS class and calculate points
+                    check(cell, rowIndex);
+                                      
+        
+                    // Last cell of a line?
+                    if (cell.cellIndex == 10) {
+                        addPoints(rowClassName, cellClassName);
+                        cellClassName == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
+                    }
 
-            // Remove points according to number of checked cell on -5 line
-            if (rowOfCell.rowIndex == 5) {
-                removePoints(cellClassName);
+                    /* This section to verify points and nb of checked cells per line during game loop
+                    messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
+                    /* End of help section */
+        
+                    // End of game? Two lines are closed or 4 negative cells are checked
+                    if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
+                        messageZone.innerHTML = 'End of game! You have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
+                        displayDicesZone.innerText = "";
+                    }
+                }});
+                }
             }
-
-            // Last cell of a line?
-            if (cell.cellIndex == 10) {
-                addPoints(rowClassName, cellClassName);
-                cellClassName == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
-            }
-
-            /* This section to verify points and nb of checked cells per line during game loop
-
-            document.getElementById("messageZone").innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4];
-
-            */
-
-            // Two lines are closed or 4 negative cells are checked: end of game
-            if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
-                document.getElementById("messageZone").innerHTML = "End of game! You have " + points + " points.";
-            }
-        });
-    }
-}
+        

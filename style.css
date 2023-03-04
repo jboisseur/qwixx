@@ -3,10 +3,11 @@
     --yellow: yellow;
     --green: limegreen;
     --blue: skyblue;
+    --black: black;
 }
 
-/* Generic class */
-
+/* WARNING - Begins - Classes below are used by the JavaScript file. */
+/* Background */
 .redbg {
     background-color: var(--red);
 }
@@ -21,6 +22,11 @@
 
 .bluebg {
     background-color: var(--blue);
+}
+
+/* Colors */
+.black {
+    color: var(--black);
 }
 
 .red {
@@ -38,6 +44,26 @@
 .blue {
     color: var(--blue);
 }
+
+/* checkCell */
+.checkCell {
+    background:linear-gradient(
+    to bottom right, 
+    transparent  calc(50% - 2px), 
+    #333        calc(50% - 2px), 
+    #333        calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+    ),
+        
+    linear-gradient(
+    to bottom left, 
+    transparent  calc(50% - 2px), 
+    #333        calc(50% - 2px), 
+    #333        calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+  );
+}
+/* WARNING - Ends */ 
 
 #displayDices {
     height: 50px;
@@ -62,20 +88,3 @@ tfoot {
     color: #fff;
 }
 
-.checkCell {
-    background:linear-gradient(
-    to bottom right, 
-    transparent  calc(50% - 2px), 
-    #333        calc(50% - 2px), 
-    #333        calc(50% + 2px) , 
-    transparent  calc(50% + 2px)
-    ),
-        
-    linear-gradient(
-    to bottom left, 
-    transparent  calc(50% - 2px), 
-    #333        calc(50% - 2px), 
-    #333        calc(50% + 2px) , 
-    transparent  calc(50% + 2px)
-  );
-}
