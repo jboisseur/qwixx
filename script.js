@@ -5,27 +5,28 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
     // From HTML
     const allTableCells = Array.from(document.getElementsByTagName("td"));
-    const displayDicesZone = document.getElementById("displayDices");
+    const displayDiceZone = document.getElementById("displayDice");
     const messageZone = document.getElementById("messageZone");
-    const button = document.getElementById("rollDicesButton");
+    const button = document.getElementById("rollDiceButton");
 
     // Initialize data
     let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0];
     let lineClosed = 0, points = 0, move = 0;
+    messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
     // Declare variables
     let cellClassName, rowOfCell, rowClassName;
 
 // Functions
-    // Begin new turn: roll dices, disable button, reset number of moves and listen to player next move
+    // Begin new turn: roll dice, disable button, reset number of moves and listen to player next move
     function newTurn() {
-        rollDices();
+        rollDice();
         disableButton();
         move = 0;
         messageZone.innerHTML = "";
     }
 
-    // Disable / enable Roll dices button
+    // Disable / enable Roll dice button
     function disableButton() {
         button.setAttribute("disabled", "");
     }
@@ -34,31 +35,31 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         button.removeAttribute("disabled");
     }
 
-    // Roll and display dices
-    function rollDice() {
+    // Roll and display dice
+    function rollDie() {
         min = Math.ceil(1);
         max = Math.floor(6);
         return Math.floor(Math.random() * (max - min + 1)) + min; 
     }
 
-    function rollDices() {
+    function rollDice() {
         let diceArray = []
 
         for (i = 0; i < 6; i++) {
-            diceArray.push(rollDice());
+            diceArray.push(rollDie());
         };
 
-        return displayDices(diceArray);
+        return displayDice(diceArray);
     }
 
-    function displayDices(diceArray) {
-        displayDicesZone.innerHTML = "";
-        displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[0] - 1] + '</span> ';
-        displayDicesZone.innerHTML += '<span class="black">' + diceCharList[diceArray[1] - 1] + '</span> ';
-        displayDicesZone.innerHTML += '<span class="red">' + diceCharList[diceArray[2] - 1] + '</span> ';
-        displayDicesZone.innerHTML += '<span class="yellow">' + diceCharList[diceArray[3] - 1] + '</span> ';
-        displayDicesZone.innerHTML += '<span class="green">' + diceCharList[diceArray[4] - 1] + '</span> ';
-        displayDicesZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
+    function displayDice(diceArray) {
+        displayDiceZone.innerHTML = "";
+        displayDiceZone.innerHTML += '<span class="black">' + diceCharList[diceArray[0] - 1] + '</span> ';
+        displayDiceZone.innerHTML += '<span class="black">' + diceCharList[diceArray[1] - 1] + '</span> ';
+        displayDiceZone.innerHTML += '<span class="red">' + diceCharList[diceArray[2] - 1] + '</span> ';
+        displayDiceZone.innerHTML += '<span class="yellow">' + diceCharList[diceArray[3] - 1] + '</span> ';
+        displayDiceZone.innerHTML += '<span class="green">' + diceCharList[diceArray[4] - 1] + '</span> ';
+        displayDiceZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
     }
 
     // "Check a cell" function (change class, count moves, add points)
@@ -81,6 +82,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             // Don't do anything on -5 line if a cell is already checked on main grid
             if (rowIndex == 5 && move >= 1) {
                 cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
+                messageZone.innerHTML = "Impossible move!";
             }
 
             // Apply checkCell class if the maximum of moves is not reached            
@@ -92,7 +94,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             
             // Indicate to the player why s.he can't check any more cell
             else {
-                messageZone.innerHTML = "No more moves! Unselect or roll dices again.<br/>";
+                messageZone.innerHTML = "No more moves! Unselect or roll dice again.";
                 cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
             }
         }
@@ -180,11 +182,9 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             // If player clicks on a cell (don't listen to the blank one)
             if (!cell.hasAttribute("colspan")) {
 
-                
-
                 cell.addEventListener("click", function() {
 
-                    if (displayDicesZone.innerText != "") {
+                    if (displayDiceZone.innerText != "") {
 
                     // Update variable value for row information
                     rowOfCell = cell.parentElement;
@@ -198,7 +198,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                     // Last cell of a line?
                     if (cell.cellIndex == 10) {
                         addPoints(rowIndex, cellClassName);
-                        cellClassName == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
+                        cell.className == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
                     }
 
                     /* This section to verify points and nb of checked cells per line during game loop
@@ -208,7 +208,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                     // End of game? Two lines are closed or 4 negative cells are checked
                     if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
                         messageZone.innerHTML = 'End of game! You have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
-                        displayDicesZone.innerText = "";
+                        displayDiceZone.innerText = "";
                     }
                 }});
                 }
