@@ -1,16 +1,22 @@
-/* TODO : afficher le nombre de points par ligne en cours de route pour vérifications */
-
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
     // From HTML
     const allTableCells = Array.from(document.getElementsByTagName("td"));
+
+        // Slicing the table
+        const minus5Line = allTableCells.slice(45, 50);
+        const redLine = allTableCells.slice(0, 11);
+        const yellowLine = allTableCells.slice(11, 22);
+        const greenLine = allTableCells.slice(22, 33);
+        const blueLine = allTableCells.slice(33, 44);
+
     const displayDiceZone = document.getElementById("displayDice");
     const messageZone = document.getElementById("messageZone");
     const button = document.getElementById("rollDiceButton");
 
     // Initialize data
-    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0];
+    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
     let lineClosed = 0, points = 0, move = 0;
     messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
@@ -18,8 +24,11 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     let cellClassName, rowOfCell, rowClassName;
 
 // Functions
-    // Begin new turn: roll dice, disable button, reset number of moves and listen to player next move
+    // Begin new turn: roll dice, disable button, reset number of moves, reset messageZone et blank arrays & classes
     function newTurn() {
+        diceArray = [];
+        allSums = [];
+        clearClasses();
         rollDice();
         disableButton();
         move = 0;
@@ -35,7 +44,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         button.removeAttribute("disabled");
     }
 
-    // Roll and display dice
+    // Dice related functions
     function rollDie() {
         min = Math.ceil(1);
         max = Math.floor(6);
@@ -43,13 +52,15 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     }
 
     function rollDice() {
-        let diceArray = []
-
         for (i = 0; i < 6; i++) {
             diceArray.push(rollDie());
         };
+        
+        displayDice(diceArray);
 
-        return displayDice(diceArray);
+        sumDice(diceArray);
+
+        return diceArray;
     }
 
     function displayDice(diceArray) {
@@ -62,6 +73,91 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         displayDiceZone.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
     }
 
+    function sumDice(diceArray) {
+        for (i = 1; i < 6; i++) {
+            allSums.push(diceArray[0] + diceArray[i]);
+        };
+        for (i = 1; i < 5; i++) {
+            allSums.push(diceArray[1] + diceArray[i + 1]);
+        };
+
+        displaySums(allSums)
+        displayMinusFiveCell(allSums)
+
+        return allSums
+    }
+
+    // Functions that display possible moves    
+    function displayMinusFiveCell(allSums) {
+        for (let i = 0; i < minus5Line.length; i++) {
+            if (minus5Line[i].className == "allowedCell") {
+                break;
+            }
+
+            else if (minus5Line[i].className == "") {
+                minus5Line[i].classList.add("allowedCell");
+                break;
+            }
+        }
+    }
+        
+    function displaySums(allSums) {
+        // Let's apply allowedCell for the full table for white dice sum
+        for (let i = 0; i < allTableCells.length; i++) {
+                if (allTableCells[i].innerText == allSums[0]) {
+                    if (allTableCells[i].className == "") {
+                        allTableCells[i].classList.add("allowedCell");
+                    }
+                }                    
+        }
+
+        // Let's apply allowedCell per line 
+        // TODO: to avoid loop repetition, this could be transformed into a function with allSums array indexes and slicing from and to as arguments
+        for (let i = 0; i < redLine.length; i++) {
+            if (redLine[i].innerText == allSums[1] || redLine[i].innerText == allSums[5]) {
+                if (redLine[i].className == "") {
+                    redLine[i].classList.add("allowCellColorLine");
+                }
+            }      
+        }
+
+        for (let i = 0; i < yellowLine.length; i++) {
+            if (yellowLine[i].innerText == allSums[2] || yellowLine[i].innerText == allSums[6]) {
+                if (yellowLine[i].className == "") { 
+                    yellowLine[i].classList.add("allowCellColorLine");
+                }
+            }      
+        }
+
+        for (let i = 0; i < greenLine.length; i++) {
+            if (greenLine[i].innerText == allSums[3] || greenLine[i].innerText == allSums[7]) {
+                if (greenLine[i].className == "") {
+                    greenLine[i].classList.add("allowCellColorLine");
+                }
+            }      
+        }
+
+        for (let i = 0; i < blueLine.length; i++) {
+            if (blueLine[i].innerText == allSums[4] || blueLine[i].innerText == allSums[8]) {
+                if (blueLine[i].className == "") {
+                    blueLine[i].classList.add("allowCellColorLine");
+                }
+            }      
+        }
+    }
+
+    // Function that clears allowedCell and allowCellColorLine classes (called on a new turn)
+    function clearClasses() {
+        for (let i = 0; i < allTableCells.length; i++) {
+            if (allTableCells[i].className == "allowedCell") {
+                    allTableCells[i].classList.remove("allowedCell");
+                }
+            else if (allTableCells[i].className == "allowCellColorLine") {
+                allTableCells[i].classList.remove("allowCellColorLine");
+            }
+        }
+    }    
+    
     // "Check a cell" function (change class, count moves, add points)
     function check(cell, rowIndex) {        
 
@@ -70,6 +166,16 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         // Allow player to uncheck if checked within a turn
         if (cellClassName == "checkCell" && move > 0) {
             cell.classList.remove("checkCell");
+
+            // back to previous state
+            if (rowIndex == 5) {
+                displayMinusFiveCell(allSums);
+            }
+
+            if (rowIndex >= 1 && rowIndex <= 4) {
+                displaySums(allSums);
+            }
+
             cellClassName = undefined;
             messageZone.innerHTML = "";
                 
@@ -77,7 +183,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         }
 
         // Apply checkCell class on certain conditions
-        if (cellClassName == "" && move >= 0) {
+        if (cellClassName == "allowedCell" || cellClassName == "allowCellColorLine" && move >= 0) {
 
             // Don't do anything on -5 line if a cell is already checked on main grid
             if (rowIndex == 5 && move >= 1) {
@@ -87,6 +193,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
             // Apply checkCell class if the maximum of moves is not reached            
             else if (move < 2) {
+                cell.classList.remove("allowedCell");
+                cell.classList.remove("allowCellColorLine");
                 cell.classList.add("checkCell");
                 cellClassName = "checkCell"; 
                 countMove(rowIndex, cellClassName);
@@ -207,6 +315,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         
                     // End of game? Two lines are closed or 4 negative cells are checked
                     if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
+                        clearClasses();
                         messageZone.innerHTML = 'End of game! You have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
                         displayDiceZone.innerText = "";
                     }

@@ -1,12 +1,24 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 :root {
     --red: orangered;
     --yellow: gold;
     --green: limegreen;
     --blue: skyblue;
     --black: black;
+    --pen: #333;
 }
 
-/* WARNING - Begins - Classes below are used by the JavaScript file. */
+body {
+    margin: 0.5em;
+}
+
+/* WARNING - Begins */
+/* Classes below are used by the JavaScript file. */
 /* Background */
 .redbg {
     background-color: var(--red);
@@ -46,20 +58,24 @@
 }
 
 /* checkCell */
+.allowedCell, .allowCellColorLine {
+    border: 2px solid var(--black);
+}
+
 .checkCell {
     background:linear-gradient(
     to bottom right, 
     transparent  calc(50% - 2px), 
-    #333        calc(50% - 2px), 
-    #333        calc(50% + 2px) , 
+    var(--pen)        calc(50% - 2px), 
+    var(--pen)         calc(50% + 2px) , 
     transparent  calc(50% + 2px)
     ),
         
     linear-gradient(
     to bottom left, 
     transparent  calc(50% - 2px), 
-    #333        calc(50% - 2px), 
-    #333        calc(50% + 2px) , 
+    var(--pen)         calc(50% - 2px), 
+    var(--pen)         calc(50% + 2px) , 
     transparent  calc(50% + 2px)
   );
 }
