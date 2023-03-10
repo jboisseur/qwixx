@@ -173,6 +173,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             }
 
             if (rowIndex >= 1 && rowIndex <= 4) {
+                deadCell(cell);
                 displaySums(allSums);
             }
 
@@ -198,6 +199,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                 cell.classList.add("checkCell");
                 cellClassName = "checkCell"; 
                 countMove(rowIndex, cellClassName);
+                deadCell(cell);
             }
             
             // Indicate to the player why s.he can't check any more cell
@@ -210,6 +212,45 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         // Add points according to number of checked cells per line and record +1 move
         addPoints(rowIndex, cellClassName);
     }
+
+    // Function that apply or remove deadCell class to previous cells in a row where a cell is checked. Called after each check or uncheck. 
+    function deadCell(cell) {
+        cellIndex = cell.cellIndex;
+        cellRow = cell.parentElement;
+        let beginArray = 0;
+        let previousCellsInRow = [];
+
+        // Building the array to apply or unapply deadCell class 
+            // Beginning of the array should correspond to first previous cell in row having checkCell class (else i 0)
+            for (i = cellIndex - 1; i > 0; i--) {
+                if (cellRow.children[i].className == "checkCell") {
+                    beginArray = i;
+                    break;
+                }
+            }
+
+            // End of the array should by the cellIndex      
+            for (let i = beginArray; i < cellIndex; i++) {
+                previousCellsInRow.push(cellRow.children[i]);
+            }
+        
+        // Apply or unapply deadCell class to the array
+        if (cell.className == "checkCell" && cellRow.rowIndex != 5) { // Check case
+            for (let i = 0; i < previousCellsInRow.length; i++) {
+                if (previousCellsInRow[i].className != "checkCell") {
+                    previousCellsInRow[i].classList.add("deadCell");
+                }
+            }
+        }
+
+        else { // Uncheck case
+            for (let i = 0; i < previousCellsInRow.length; i++) {
+                if (previousCellsInRow[i].classList.contains("deadCell")) {
+                    previousCellsInRow[i].classList.remove("deadCell");
+                }
+            }        
+        }
+    }  
 
     // Functions that help calculating the results and counting moves
     function countMove(rowIndex, className) {

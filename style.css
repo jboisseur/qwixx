@@ -14,11 +14,50 @@
 }
 
 body {
-    margin: 0.5em;
+    width: 100vw;
+    margin: 1em auto;
+}
+
+body, #diceZone {    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    width: 100px;
+    height: 30px;
+}
+
+#displayDice {
+    height: 50px;
+    font-size: xx-large;
+}
+
+#messageZone {
+    margin-top: 0.5em;
+}
+
+/* Table */
+table,
+td {
+    border: 1px solid #333;
+}
+
+td {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+}
+
+thead,
+tfoot {
+    background-color: #333;
+    color: #fff;
 }
 
 /* WARNING - Begins */
-/* Classes below are used by the JavaScript file. */
+/* Classes below are used by the JavaScript file. Change with care. */
 /* Background */
 .redbg {
     background-color: var(--red);
@@ -34,6 +73,11 @@ body {
 
 .bluebg {
     background-color: var(--blue);
+}
+
+.deadCell {
+    background-color: var(--pen);
+    opacity: 0.5;
 }
 
 /* Colors */
@@ -57,7 +101,7 @@ body {
     color: var(--blue);
 }
 
-/* checkCell */
+/* cell make up */
 .allowedCell, .allowCellColorLine {
     border: 2px solid var(--black);
 }
@@ -80,27 +124,3 @@ body {
   );
 }
 /* WARNING - Ends */ 
-
-#displayDice {
-    height: 50px;
-    font-size: xx-large;
-}
-
-/* Table */
-table,
-td {
-    border: 1px solid #333;
-}
-
-td {
-    width: 50px;
-    height: 50px;
-    text-align: center;
-}
-
-thead,
-tfoot {
-    background-color: #333;
-    color: #fff;
-}
-
