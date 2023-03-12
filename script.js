@@ -184,6 +184,11 @@ playerName.addEventListener("click", function() {
                 displaySums(allSums);
             }
 
+            if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                addPoints(rowIndex, cellClassName);
+                lineClosed -= 1;
+            }
+
             cellClassName = undefined;
             messageZone.innerHTML = "";
                 
@@ -202,11 +207,16 @@ playerName.addEventListener("click", function() {
             // Apply checkCell class if the maximum of moves is not reached            
             else if (move < 2) {
                 // Verify wether nb of checked cell per line is at least 5 before checking last cell
-                if (cell.innerText == 2 || cell.innerText == 12 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
+                if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
                         messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell."; 
                 }
 
-                else {                
+                else {
+                    // Last cell of a line?
+                    if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                        addPoints(rowIndex, cellClassName);
+                        lineClosed += 1;
+                    }          
                     cell.classList.remove("allowedCell");
                     cell.classList.remove("allowCellColorLine");
                     cell.classList.add("checkCell");
@@ -358,12 +368,7 @@ playerName.addEventListener("click", function() {
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
                                       
-        
-                    // Last cell of a line?
-                    if (cell.cellIndex == 10) {
-                        addPoints(rowIndex, cellClassName);
-                        cell.className == "checkCell" ? lineClosed += 1 : lineClosed -= 1;
-                    }
+
 
                     /* This section to verify points and nb of checked cells per line during game loop
                     messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
