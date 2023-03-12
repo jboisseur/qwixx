@@ -203,7 +203,7 @@ playerName.addEventListener("click", function() {
             else if (move < 2) {
                 // Verify wether nb of checked cell per line is at least 5 before checking last cell
                 if (cell.innerText == 2 || cell.innerText == 12 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
-                        messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selected this cell."; 
+                        messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell."; 
                 }
 
                 else {                
