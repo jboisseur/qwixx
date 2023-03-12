@@ -2,6 +2,7 @@
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
     // From HTML
+    const playerName = document.getElementById("playerName");
     const allTableCells = Array.from(document.getElementsByTagName("td"));
 
         // Slicing the table
@@ -22,6 +23,12 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
     // Declare variables
     let cellClassName, rowOfCell, rowClassName;
+
+// Edit player name
+playerName.addEventListener("click", function() {
+    playerName.innerHTML = " ";
+})
+
 
 // Functions
     // Begin new turn: roll dice, disable button, reset number of moves, reset messageZone et blank arrays & classes
@@ -194,12 +201,20 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
             // Apply checkCell class if the maximum of moves is not reached            
             else if (move < 2) {
-                cell.classList.remove("allowedCell");
-                cell.classList.remove("allowCellColorLine");
-                cell.classList.add("checkCell");
-                cellClassName = "checkCell"; 
-                countMove(rowIndex, cellClassName);
-                deadCell(cell);
+                // Verify wether nb of checked cell per line is at least 5 before checking last cell
+                if (cell.innerText == 2 || cell.innerText == 12 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
+                        messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selected this cell."; 
+                }
+
+                else {                
+                    cell.classList.remove("allowedCell");
+                    cell.classList.remove("allowCellColorLine");
+                    cell.classList.add("checkCell");
+                    cellClassName = "checkCell"; 
+                    messageZone.innerHTML = "";
+                    countMove(rowIndex, cellClassName);
+                    deadCell(cell);
+                }
             }
             
             // Indicate to the player why s.he can't check any more cell
@@ -357,7 +372,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                     // End of game? Two lines are closed or 4 negative cells are checked
                     if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
                         clearClasses();
-                        messageZone.innerHTML = 'End of game! You have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
+                        messageZone.innerHTML = 'End of game! ' + playerName.innerText + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
                         displayDiceZone.innerText = "";
                     }
                 }});

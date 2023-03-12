@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: sans-serif;
 }
 
 :root {
@@ -42,12 +43,17 @@ button {
 table,
 td {
     border: 1px solid #333;
+    text-align: center;
+}
+
+th {
+    height: 40px;
+    caret-color: #fff;
 }
 
 td {
     width: 50px;
     height: 50px;
-    text-align: center;
 }
 
 thead,
