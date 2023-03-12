@@ -185,7 +185,6 @@ playerName.addEventListener("click", function() {
             }
 
             if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
-                addPoints(rowIndex, cellClassName);
                 lineClosed -= 1;
             }
 
@@ -215,6 +214,7 @@ playerName.addEventListener("click", function() {
                     // Last cell of a line?
                     if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                         addPoints(rowIndex, cellClassName);
+                        console.log("adding supplementary points")
                         lineClosed += 1;
                     }          
                     cell.classList.remove("allowedCell");
@@ -367,8 +367,11 @@ playerName.addEventListener("click", function() {
 
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
-                                      
-
+                    
+                    // Last cell of a line?
+                    if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                        addPoints(rowIndex, cellClassName);
+                    }  
 
                     /* This section to verify points and nb of checked cells per line during game loop
                     messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
@@ -377,6 +380,8 @@ playerName.addEventListener("click", function() {
                     // End of game? Two lines are closed or 4 negative cells are checked
                     if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
                         clearClasses();
+                        disableButton();
+                        // TODO: count points here (call a dedicated function) rather than during the game. Checking/unchecking make it unstable
                         messageZone.innerHTML = 'End of game! ' + playerName.innerText + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
                         displayDiceZone.innerText = "";
                     }
