@@ -1,11 +1,24 @@
-// TODO: 
-// You can't change the past: if a newTurn is launched, change the class so that unchecking don't work anymore ;D (use permanentCheckCell class)
+/* 
+    Qwixx is a boardgame created by Steffen Benndor and illustrated by O. & S. Freudenreich.
+    This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
+    Project started sometime in 2022. It was last updated on March 2023
+*/
+
+/* 
+    TO-DO
+    Corner cases spotted
+    - When you check 2 cells on the same line and uncheck the leftest: the left cells don't herit from the deadCell class although they should
+
+    Version 2
+    2.d
+    - You can't change the past: if a newTurn is launched, change the class so that unchecking don't work anymore ;D (use permanentCheckCell class)
+*/
 
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
     // From HTML
-    const playerName = document.getElementById("playerName");
+    const playerNameZone = document.getElementById("playerName");
     const allTableCells = Array.from(document.getElementsByTagName("td"));
 
         // Slicing the table
@@ -22,15 +35,22 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     // Initialize data
     let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], diceArray = [], allSums = [], pointsArray = [0, 0, 0, 0, 0];
     let lineClosed = 0, points = 0, move = 0;
+    let playerName;
     messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
     // Declare variables
     let cellClassName, rowOfCell, rowClassName;
 
-// Edit player name
-playerName.addEventListener("click", function() {
-    playerName.innerHTML = "";
-})
+// Player name management
+    // Restore player's name with last game
+    if (sessionStorage.getItem("autosave")) {
+        playerNameZone.innerHTML = sessionStorage.getItem("autosave");
+    } 
+
+    // Allow player to edit name
+    playerNameZone.addEventListener("click", () => {
+        playerNameZone.innerHTML = "";
+    })
 
 // Functions
     // Begin new turn
@@ -45,6 +65,42 @@ playerName.addEventListener("click", function() {
         clearClasses();
         rollDice();
         disableButton();
+    }
+
+    // End game
+    function askForEndOfGame() {
+        // Game can end if two lines are closed or 4 negative cells are checked
+        if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
+            // If so, change button text and function called onclick         
+            button.innerHTML = "End game?";
+            button.setAttribute("onclick", "endGame()");            
+        }
+
+        // Roll back in case cell is unchecked
+        else {
+            button.innerHTML = "Roll dice";
+            button.setAttribute("onclick", "newTurn()");  
+        }
+    }
+
+    function endGame() {
+        // Clean out
+        disableButton();
+        clearClasses();
+        displayDiceZone.innerText = ""; 
+
+        // Getting points and player name
+        points = countPoints(nbOfCheckedCellPerLine);
+        saveNameToSessionStorage();
+
+        // Displaying end of game message
+        messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';               
+    }
+
+    function saveNameToSessionStorage() {
+        playerName = playerNameZone.innerText;
+        sessionStorage.setItem("autosave", playerName);
+        return playerName;
     }
 
     // Disable / enable Roll dice button
@@ -370,17 +426,9 @@ playerName.addEventListener("click", function() {
                     /* This section to verify points and nb of checked cells per line during game loop 
                     messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
                     /* End of help section */
-        
-                    // End of game? Two lines are closed or 4 negative cells are checked
-                    if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
-                        clearClasses();
-                        disableButton();
-                        points = countPoints(nbOfCheckedCellPerLine);
-                        // TODO: count points here (call a dedicated function) rather than during the game. Checking/unchecking make it unstable
-                        messageZone.innerHTML = 'End of game! ' + playerName.innerText + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
-                        displayDiceZone.innerText = "";
-                    }
+
+                    // End of game?
+                    askForEndOfGame();
                 }});
                 }
             }
-        
