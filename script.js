@@ -1,3 +1,6 @@
+// TODO: 
+// You can't change the past: if a newTurn is launched, change the class so that unchecking don't work anymore ;D (use permanentCheckCell class)
+
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
@@ -17,7 +20,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     const button = document.getElementById("rollDiceButton");
 
     // Initialize data
-    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
+    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], diceArray = [], allSums = [], pointsArray = [0, 0, 0, 0, 0];
     let lineClosed = 0, points = 0, move = 0;
     messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
@@ -26,20 +29,22 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
 // Edit player name
 playerName.addEventListener("click", function() {
-    playerName.innerHTML = " ";
+    playerName.innerHTML = "";
 })
 
-
 // Functions
-    // Begin new turn: roll dice, disable button, reset number of moves, reset messageZone et blank arrays & classes
+    // Begin new turn
     function newTurn() {
+        // Reset data
         diceArray = [];
         allSums = [];
+        move = 0;
+        messageZone.innerHTML = "";
+
+        // Call functions
         clearClasses();
         rollDice();
         disableButton();
-        move = 0;
-        messageZone.innerHTML = "";
     }
 
     // Disable / enable Roll dice button
@@ -165,7 +170,7 @@ playerName.addEventListener("click", function() {
         }
     }    
     
-    // "Check a cell" function (change class, count moves, add points)
+    // "Check a cell" function (change class and count moves)
     function check(cell, rowIndex) {        
 
         cellClassName = cell.className;
@@ -213,8 +218,6 @@ playerName.addEventListener("click", function() {
                 else {
                     // Last cell of a line?
                     if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
-                        addPoints(rowIndex, cellClassName);
-                        console.log("adding supplementary points")
                         lineClosed += 1;
                     }          
                     cell.classList.remove("allowedCell");
@@ -234,8 +237,17 @@ playerName.addEventListener("click", function() {
             }
         }
 
-        // Add points according to number of checked cells per line and record +1 move
-        addPoints(rowIndex, cellClassName);
+        updateNbOfCheckedCellPerLineArray(rowIndex, cellClassName);
+    }
+
+    function updateNbOfCheckedCellPerLineArray(rowIndex, className) {  
+        if (className == "checkCell") {
+            nbOfCheckedCellPerLine[rowIndex -1] += 1;
+        }
+
+        else if (className == undefined) {                
+            nbOfCheckedCellPerLine[rowIndex -1] -= 1;           
+        }
     }
 
     // Function that apply or remove deadCell class to previous cells in a row where a cell is checked. Called after each check or uncheck. 
@@ -311,43 +323,25 @@ playerName.addEventListener("click", function() {
        move == 0 ? disableButton() : null;
     }
 
-    function displayPoints(rowIndex, points) {
-        rowIndex == 0 ? redPointsZone.innerHTML = points : null;
-        rowIndex == 1 ? yellowPointsZone.innerHTML = points : null;
-        rowIndex == 2 ? greenPointsZone.innerHTML = points : null;
-        rowIndex == 3 ? bluePointsZone.innerHTML = points : null;
-        rowIndex == 4 ? minusPointsZone.innerHTML = points : null;
-    }
-
-    function verifyClassBeforeAddingPoints (rowIndex, className) {  
-        if (className == "checkCell") {
-            nbOfCheckedCellPerLine[rowIndex] += 1;
-            points += nbOfCheckedCellPerLine[rowIndex];    
+    function countPoints(nbOfCheckedCellPerLine) {
+        for (let i = 0; i < nbOfCheckedCellPerLine.length - 1; i++) { // For each line from the main grid
+            for (let j = 0; j <= nbOfCheckedCellPerLine[i] ; j++) { // Add the number to the previous until the value in the index is reached
+                pointsArray[i] = pointsArray[i] += j;
+            }
         }
 
-        else if (className == undefined) {                
-            points -= nbOfCheckedCellPerLine[rowIndex];
-            nbOfCheckedCellPerLine[rowIndex] -= 1;           
+        // And for last line of the grid
+        for (let k = 0; k < nbOfCheckedCellPerLine[4] ; k++) { // Add the number to the previous until the value in the index is reached
+            pointsArray[4] = pointsArray[4] -= 5;
         }
-    }
 
-    function addPoints(rowIndex, cellClassName) {     
-        rowIndex == 1 ? verifyClassBeforeAddingPoints(0, cellClassName) : null;
-        rowIndex == 2 ? verifyClassBeforeAddingPoints(1, cellClassName) : null;
-        rowIndex == 3 ? verifyClassBeforeAddingPoints(2, cellClassName) : null;
-        rowIndex == 4 ? verifyClassBeforeAddingPoints(3, cellClassName) : null;
-        rowIndex == 5 ? removePoints(cellClassName) : null;
-    }
-
-    function removePoints(cellClassName) {
-        if (cellClassName == "checkCell") {
-            nbOfCheckedCellPerLine[4] += 1;
-            points -= 5;
+        // Let's sum up all these
+        let sum = 0;
+        for (let i = 0; i < pointsArray.length; i++) {
+            sum += pointsArray[i];
         }
-        if (cellClassName == undefined) {                
-            points += 5;
-            nbOfCheckedCellPerLine[4] -= 1;
-        }        
+
+        return sum;
     }
 
     // Game loop
@@ -368,12 +362,12 @@ playerName.addEventListener("click", function() {
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
                     
-                    // Last cell of a line?
+                    // Last cell of a line? Let's have another round of updating the number of checked cell per line array
                     if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
-                        addPoints(rowIndex, cellClassName);
+                        updateNbOfCheckedCellPerLineArray(rowIndex, cell.className)
                     }  
 
-                    /* This section to verify points and nb of checked cells per line during game loop
+                    /* This section to verify points and nb of checked cells per line during game loop 
                     messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
                     /* End of help section */
         
@@ -381,6 +375,7 @@ playerName.addEventListener("click", function() {
                     if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
                         clearClasses();
                         disableButton();
+                        points = countPoints(nbOfCheckedCellPerLine);
                         // TODO: count points here (call a dedicated function) rather than during the game. Checking/unchecking make it unstable
                         messageZone.innerHTML = 'End of game! ' + playerName.innerText + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';
                         displayDiceZone.innerText = "";
