@@ -8,10 +8,11 @@
     TO-DO
     Corner cases spotted
     - When you check 2 cells on the same line and uncheck the leftest: the left cells don't herit from the deadCell class although they should
+    - Verify points, there's still something wrong, I believe something to do with checking/unchecking? Unable de reproduce so far
 
-    Version 2
-    2.d
-    - You can't change the past: if a newTurn is launched, change the class so that unchecking don't work anymore ;D (use permanentCheckCell class)
+    Version 3
+    3a
+    - On a same line, cell with class .allowedCell should be left from cell with .allowCellColorLine class
 */
 
 // Variables
@@ -63,6 +64,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
         // Call functions
         clearClasses();
+        pastIsPast();
         rollDice();
         disableButton();
     }
@@ -84,7 +86,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     }
 
     function endGame() {
-        // Clean out
+        // Clean-up
         disableButton();
         clearClasses();
         displayDiceZone.innerText = ""; 
@@ -224,7 +226,17 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                 allTableCells[i].classList.remove("allowCellColorLine");
             }
         }
-    }    
+    }
+
+    // Function that changes checkCell class to permanentCheckCell class so past cannot be changed (called on a new turn)
+    function pastIsPast() {
+        for (let i = 0; i < allTableCells.length; i++) {
+            if (allTableCells[i].className == "checkCell") {
+                    allTableCells[i].classList.remove("checkCell");
+                    allTableCells[i].classList.add("permanentCheckCell");
+                }
+            }
+    }
     
     // "Check a cell" function (change class and count moves)
     function check(cell, rowIndex) {        
@@ -241,8 +253,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             }
 
             if (rowIndex >= 1 && rowIndex <= 4) {
-                deadCell(cell);
                 displaySums(allSums);
+                deadCell(cell);
             }
 
             if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
@@ -314,9 +326,9 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         let previousCellsInRow = [];
 
         // Building the array to apply or unapply deadCell class 
-            // Beginning of the array should correspond to first previous cell in row having checkCell class (else i 0)
+            // Beginning of the array should correspond to first previous cell in row having checkCell class or permanentCheckCell (else i 0)
             for (i = cellIndex - 1; i > 0; i--) {
-                if (cellRow.children[i].className == "checkCell") {
+                if (cellRow.children[i].className == "checkCell" || cellRow.children[i].className == "permanentCheckCell") {
                     beginArray = i;
                     break;
                 }
@@ -326,11 +338,13 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             for (let i = beginArray; i < cellIndex; i++) {
                 previousCellsInRow.push(cellRow.children[i]);
             }
+
+        
         
         // Apply or unapply deadCell class to the array
         if (cell.className == "checkCell" && cellRow.rowIndex != 5) { // Check case
             for (let i = 0; i < previousCellsInRow.length; i++) {
-                if (previousCellsInRow[i].className != "checkCell") {
+                if (previousCellsInRow[i].className != "checkCell" && previousCellsInRow[i].className != "permanentCheckCell") {
                     previousCellsInRow[i].classList.add("deadCell");
                 }
             }
@@ -338,6 +352,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
         else { // Uncheck case
             for (let i = 0; i < previousCellsInRow.length; i++) {
+                // TO-DO: here we have no manage the case of unchecking the leftest cell if two where check in a row
                 if (previousCellsInRow[i].classList.contains("deadCell")) {
                     previousCellsInRow[i].classList.remove("deadCell");
                 }
