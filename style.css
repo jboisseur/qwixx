@@ -118,7 +118,7 @@ tfoot {
 }
 
 /* cell make up */
-.allowedCell, .allowCellColorLine {
+.allowedCell, .allowCellColorLine, .minus5 {
     border: 2px solid var(--black);
 }
 

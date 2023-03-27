@@ -6,14 +6,11 @@
 
 /* 
     TO-DO
-    Corner cases spotted
-    - When you check 2 cells on the same line and uncheck the leftest: the left cells don't herit from the deadCell class although they should
-    - Verify points, there's still something wrong, I believe something to do with checking/unchecking? Unable de reproduce so far
-
-    Version 3
-    3a
-    - On a same line, cell with class .allowedCell should be left from cell with .allowCellColorLine class
+    version 3b: on a same line, cell with class .allowedCell should be left from cell with .allowCellColorLine class
+    other: create functions to avoid copy pasting
 */
+
+"use strict"
 
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
@@ -34,13 +31,14 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     const button = document.getElementById("rollDiceButton");
 
     // Initialize data
-    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], diceArray = [], allSums = [], pointsArray = [0, 0, 0, 0, 0];
-    let lineClosed = 0, points = 0, move = 0;
-    let playerName;
+    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
+    let cellMove1 = {cell: null, class: null}, cellMove2 = {cell: null, class: null};
+    let lineClosed = 0, points = 0;
+    let playerName, rowIndex;
     messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
     // Declare variables
-    let cellClassName, rowOfCell, rowClassName;
+    let cellClassName, rowOfCell;
 
 // Player name management
     // Restore player's name with last game
@@ -59,11 +57,15 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         // Reset data
         diceArray = [];
         allSums = [];
-        move = 0;
         messageZone.innerHTML = "";
+        cellMove1.cell = null;
+        cellMove1.class = null;
+        cellMove2.cell = null;
+        cellMove2.class = null;
 
         // Call functions
-        clearClasses();
+        clearClass("allowedCell")
+        clearClass("allowCellColorLine");
         pastIsPast();
         rollDice();
         disableButton();
@@ -88,7 +90,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     function endGame() {
         // Clean-up
         disableButton();
-        clearClasses();
+        clearClass("allowedCell")
+        clearClass("allowCellColorLine");
         displayDiceZone.innerText = ""; 
 
         // Getting points and player name
@@ -96,7 +99,11 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         saveNameToSessionStorage();
 
         // Displaying end of game message
-        messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' points. <a href="javascript:window.location.href=window.location.href">Start again</a>?';               
+        function addS(points) {
+            return points > 1 || points < -1 ? 's' : '';            
+        }
+
+        messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' point' + addS(points) + '. <a href="javascript:window.location.href=window.location.href">Start again</a>?';               
     }
 
     function saveNameToSessionStorage() {
@@ -116,13 +123,13 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
     // Dice related functions
     function rollDie() {
-        min = Math.ceil(1);
-        max = Math.floor(6);
+        let min = Math.ceil(1);
+        let max = Math.floor(6);
         return Math.floor(Math.random() * (max - min + 1)) + min; 
     }
 
     function rollDice() {
-        for (i = 0; i < 6; i++) {
+        for (let i = 0; i < 6; i++) {
             diceArray.push(rollDie());
         };
         
@@ -144,87 +151,87 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     }
 
     function sumDice(diceArray) {
-        for (i = 1; i < 6; i++) {
+        for (let i = 1; i < 6; i++) {
             allSums.push(diceArray[0] + diceArray[i]);
         };
-        for (i = 1; i < 5; i++) {
+        for (let i = 1; i < 5; i++) {
             allSums.push(diceArray[1] + diceArray[i + 1]);
         };
 
-        displaySums(allSums)
-        displayMinusFiveCell(allSums)
+        whiteDiceSum(allSums);
+        colorDiceSum(allSums);
+        displayMinusFiveCell();
 
         return allSums
     }
 
     // Functions that display possible moves    
-    function displayMinusFiveCell(allSums) {
+    function displayMinusFiveCell() {
         for (let i = 0; i < minus5Line.length; i++) {
-            if (minus5Line[i].className == "allowedCell") {
+            if (minus5Line[i].className == "minus5") {
                 break;
             }
 
             else if (minus5Line[i].className == "") {
-                minus5Line[i].classList.add("allowedCell");
+                minus5Line[i].classList.add("minus5");
                 break;
             }
         }
     }
-        
-    function displaySums(allSums) {
-        // Let's apply allowedCell for the full table for white dice sum
-        for (let i = 0; i < allTableCells.length; i++) {
-                if (allTableCells[i].innerText == allSums[0]) {
-                    if (allTableCells[i].className == "") {
-                        allTableCells[i].classList.add("allowedCell");
-                    }
-                }                    
-        }
 
-        // Let's apply allowedCell per line 
-        // TODO: to avoid loop repetition, this could be transformed into a function with allSums array indexes and slicing from and to as arguments
+    function whiteDiceSum(allSums) {
+    // Applies allowedCell class for the full table for white dice sum
+        for (let i = 0; i < allTableCells.length; i++) {
+            if (allTableCells[i].innerText == allSums[0]) {
+                if (allTableCells[i].className == "") {
+                    allTableCells[i].classList.add("allowedCell");
+                }
+            }                    
+        }
+    }
+        
+    function colorDiceSum(allSums) {
+    // Let's apply allowCellColorLine per line 
+    // TO-DO: to avoid loop repetition, this could be transformed into a function with allSums array indexes and slicing from and to as arguments
         for (let i = 0; i < redLine.length; i++) {
             if (redLine[i].innerText == allSums[1] || redLine[i].innerText == allSums[5]) {
-                if (redLine[i].className == "") {
-                    redLine[i].classList.add("allowCellColorLine");
-                }
+                    if (redLine[i].classList == "" || redLine[i].classList.contains("allowedCell")) {
+                        redLine[i].classList.add("allowCellColorLine");
+                    }
             }      
         }
 
         for (let i = 0; i < yellowLine.length; i++) {
             if (yellowLine[i].innerText == allSums[2] || yellowLine[i].innerText == allSums[6]) {
-                if (yellowLine[i].className == "") { 
+                if (yellowLine[i].classList == "" || yellowLine[i].classList.contains("allowedCell")) {
                     yellowLine[i].classList.add("allowCellColorLine");
-                }
+                }                    
             }      
         }
 
         for (let i = 0; i < greenLine.length; i++) {
             if (greenLine[i].innerText == allSums[3] || greenLine[i].innerText == allSums[7]) {
-                if (greenLine[i].className == "") {
-                    greenLine[i].classList.add("allowCellColorLine");
+                if (greenLine[i].classList == "" || greenLine[i].classList.contains("allowedCell")) {
+                    greenLine[i].classList.add("allowCellColorLine");                    
                 }
             }      
         }
 
         for (let i = 0; i < blueLine.length; i++) {
             if (blueLine[i].innerText == allSums[4] || blueLine[i].innerText == allSums[8]) {
-                if (blueLine[i].className == "") {
-                    blueLine[i].classList.add("allowCellColorLine");
+                if (blueLine[i].classList == "" || blueLine[i].classList.contains("allowedCell")) {
+                    blueLine[i].classList.add("allowCellColorLine");                    
                 }
             }      
         }
     }
 
-    // Function that clears allowedCell and allowCellColorLine classes (called on a new turn)
-    function clearClasses() {
+    // Function that clears provided className throughout the full grid
+    function clearClass(className) {
         for (let i = 0; i < allTableCells.length; i++) {
-            if (allTableCells[i].className == "allowedCell") {
-                    allTableCells[i].classList.remove("allowedCell");
+            if (allTableCells[i].classList.contains(className)) {
+                    allTableCells[i].classList.remove(className);
                 }
-            else if (allTableCells[i].className == "allowCellColorLine") {
-                allTableCells[i].classList.remove("allowCellColorLine");
-            }
         }
     }
 
@@ -237,97 +244,204 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                 }
             }
     }
+
+    // Function that returns true if checkCell class is found within the grid
+    function checkCellFound() {
+        for (let i = 0; i < allTableCells.length; i++) {
+            if (allTableCells[i].className == "checkCell") {
+                return true;
+            }
+        }
+    }
+
+    // Function that counts number of checkCell clas within the grid
+    function nbOfCheckCellFound() {
+        let nbOfCheckCellFound = 0;
+        for (let i = 0; i < allTableCells.length; i++) {
+            if (allTableCells[i].className == "checkCell") {
+                nbOfCheckCellFound ++; 
+            }
+        }
+        return nbOfCheckCellFound;
+    }
     
-    // "Check a cell" function (change class and count moves)
-    function check(cell, rowIndex) {        
+    // "Check a cell" function
+    function check(cell, rowIndex) {
 
-        cellClassName = cell.className;
+        // Uncheck
+        if (cell.classList == "checkCell") {            
 
-        // Allow player to uncheck if checked within a turn
-        if (cellClassName == "checkCell" && move > 0) {
+            if (cellClassName == "minus5") {
+                whiteDiceSum(allSums);
+                colorDiceSum(allSums);
+                cell.classList.add("minus5");
+            }
+
+            else if (cell == cellMove1.cell) {
+                cell.className = cellMove1.class;
+
+                if (cellMove1.class == "allowedCell") {
+                    whiteDiceSum(allSums);
+                }
+
+                else if (cellMove1.class == "allowCellColorLine") {
+                    colorDiceSum(allSums);
+                }
+
+                // Clear up
+                cellMove1.cell = null;
+                cellMove1.class = null;
+            }
+
+            else if (cell == cellMove2.cell) {
+                cell.className = cellMove2.class;
+
+                if (cellMove2.class == "allowedCell") {
+                    whiteDiceSum(allSums);
+                }
+
+                else if (cellMove2.class == "allowCellColorLine") {
+                    colorDiceSum(allSums);
+                }
+
+                // Clear up
+                cellMove2.cell = null;
+                cellMove2.class = null;
+            }
+
+            // One of recorded class is "both"? Dislay again all results
+            if (cellMove1.class == "allowedCell allowCellColorLine" || cellMove2.class == "allowedCell allowCellColorLine") {
+                whiteDiceSum(allSums);
+                colorDiceSum(allSums);
+            }
+            
             cell.classList.remove("checkCell");
+            deadCell(cell);                
 
-            // back to previous state
-            if (rowIndex == 5) {
-                displayMinusFiveCell(allSums);
-            }
+            // Disable and button and display -5 cell only if there's no checkCell on the entire table
+            checkCellFound() ? null : disableButton();
+            checkCellFound() ? null : displayMinusFiveCell();
+            checkCellFound() ? null : whiteDiceSum(allSums);
+            checkCellFound() ? null : colorDiceSum(allSums);
 
-            if (rowIndex >= 1 && rowIndex <= 4) {
-                displaySums(allSums);
-                deadCell(cell);
-            }
-
+            // Last cell of a line?
             if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                 lineClosed -= 1;
             }
 
-            cellClassName = undefined;
-            messageZone.innerHTML = "";
-                
-            countMove(rowIndex, cellClassName);
         }
 
-        // Apply checkCell class on certain conditions
-        if (cellClassName == "allowedCell" || cellClassName == "allowCellColorLine" && move >= 0) {
+        // Check
+            // Check - 5
+            else if (cell.classList  == "minus5") {
+                clearClass("allowedCell");
+                clearClass("allowCellColorLine");
 
-            // Don't do anything on -5 line if a cell is already checked on main grid
-            if (rowIndex == 5 && move >= 1) {
-                cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
-                messageZone.innerHTML = "Impossible move!";
+                cell.classList.remove("minus5");
+                cell.classList.add("checkCell");
+
+                cellClassName = "minus5"
+
+                enableButton()
             }
 
-            // Apply checkCell class if the maximum of moves is not reached            
-            else if (move < 2) {
+            // Check on main grid                
+            else if (cell.classList == "allowedCell" || cell.classList == "allowCellColorLine" || cell.classList == "allowedCell allowCellColorLine") {
+
                 // Verify wether nb of checked cell per line is at least 5 before checking last cell
                 if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
-                        messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell."; 
+                    messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell.";
+                    nbOfCheckedCellPerLine[rowIndex -1] += 1; // To compensate the minus 1 at the end of this function
                 }
 
+                // Otherwise, check
                 else {
+
+                    // TO-DO: could be simplified I guess, there's some copy paste here
+
                     // Last cell of a line?
                     if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                         lineClosed += 1;
-                    }          
-                    cell.classList.remove("allowedCell");
-                    cell.classList.remove("allowCellColorLine");
-                    cell.classList.add("checkCell");
-                    cellClassName = "checkCell"; 
-                    messageZone.innerHTML = "";
-                    countMove(rowIndex, cellClassName);
+                    }
+                    
+                    if (cell.classList == "allowedCell") {
+                        clearClass("allowedCell");
+                        // TODELETE? cell.classList.remove("allowedCell");
+                        // TODELETE? cellClassName = "allowedCell";
+
+                        if (nbOfCheckCellFound() == 0) {
+                            cellMove1.cell = cell
+                            cellMove1.class = "allowedCell";
+                        }
+                        
+                        else if (nbOfCheckCellFound() == 1) {
+                            cellMove2.cell = cell
+                            cellMove2.class = "allowedCell";
+                        }                         
+                    }
+
+                    else if (cell.classList == "allowCellColorLine") {
+                        clearClass("allowCellColorLine");
+                        // TODELETE? cell.classList.remove("allowCellColorLine");
+                        // TODELETE? cellClassName = "allowCellColorLine";
+
+                        if (nbOfCheckCellFound() == 0) {
+                            cellMove1.cell = cell
+                            cellMove1.class = "allowCellColorLine";
+                        }
+                        
+                        else if (nbOfCheckCellFound() == 1) {
+                            cellMove2.cell = cell
+                            cellMove2.class = "allowCellColorLine";
+                        }                   
+                    }
+
+                    else if (cell.classList == "allowedCell allowCellColorLine") {
+                        cell.classList.remove("allowedCell");
+                        cell.classList.remove("allowCellColorLine");
+
+                        if (nbOfCheckCellFound() == 0) {
+                            cellMove1.cell = cell
+                            cellMove1.class = "allowedCell allowCellColorLine";
+                        }
+                        
+                        else if (nbOfCheckCellFound() == 1) {
+                            cellMove2.cell = cell
+                            cellMove2.class = "allowedCell allowCellColorLine";
+                        }    
+                       // TODELETE? cellClassName = "allowedCell allowCellColorLine";      
+                    }
+                    
+                    clearClass("minus5");                
+                    cell.classList.add("checkCell");            
                     deadCell(cell);
+                    enableButton();
                 }
             }
-            
-            // Indicate to the player why s.he can't check any more cell
-            else {
-                messageZone.innerHTML = "No more moves! Unselect or roll dice again.";
-                cellClassName = 0; // Set cellClassName to a value not considered elsewhere in the code
-            }
-        }
 
-        updateNbOfCheckedCellPerLineArray(rowIndex, cellClassName);
+    updateNbOfCheckedCellPerLineArray(rowIndex, cell.className);    
     }
 
-    function updateNbOfCheckedCellPerLineArray(rowIndex, className) {  
+    function updateNbOfCheckedCellPerLineArray(rowIndex, className) {
         if (className == "checkCell") {
             nbOfCheckedCellPerLine[rowIndex -1] += 1;
         }
 
-        else if (className == undefined) {                
+        else if (className == "allowedCell" || className == "allowCellColorLine" || className == "minus5" || className == "allowedCell allowCellColorLine") {                
             nbOfCheckedCellPerLine[rowIndex -1] -= 1;           
         }
     }
 
     // Function that apply or remove deadCell class to previous cells in a row where a cell is checked. Called after each check or uncheck. 
     function deadCell(cell) {
-        cellIndex = cell.cellIndex;
-        cellRow = cell.parentElement;
+        let cellIndex = cell.cellIndex;
+        let cellRow = cell.parentElement;
         let beginArray = 0;
         let previousCellsInRow = [];
 
-        // Building the array to apply or unapply deadCell class 
+        // Building the previousCellsInRow array to apply or unapply deadCell class to previous cells
             // Beginning of the array should correspond to first previous cell in row having checkCell class or permanentCheckCell (else i 0)
-            for (i = cellIndex - 1; i > 0; i--) {
+            for (let i = cellIndex - 1; i > 0; i--) {
                 if (cellRow.children[i].className == "checkCell" || cellRow.children[i].className == "permanentCheckCell") {
                     beginArray = i;
                     break;
@@ -337,9 +451,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             // End of the array should by the cellIndex      
             for (let i = beginArray; i < cellIndex; i++) {
                 previousCellsInRow.push(cellRow.children[i]);
-            }
-
-        
+            }        
         
         // Apply or unapply deadCell class to the array
         if (cell.className == "checkCell" && cellRow.rowIndex != 5) { // Check case
@@ -351,49 +463,31 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         }
 
         else { // Uncheck case
-            for (let i = 0; i < previousCellsInRow.length; i++) {
-                // TO-DO: here we have no manage the case of unchecking the leftest cell if two where check in a row
+            for (let i = 0; i < previousCellsInRow.length; i++) {                
                 if (previousCellsInRow[i].classList.contains("deadCell")) {
                     previousCellsInRow[i].classList.remove("deadCell");
+                }    
+            }  
+
+            // In case uncheck is left from another checkCell in same row
+            if (cellRow.rowIndex != 5) {
+                for (let i = cell.cellIndex; i < 11; i++) {
+                    if (cellRow.children[i].className == "checkCell") { // Flag for checkCell class in row
+
+                        cell.classList.add("deadCell"); // Add deadCell class to unchcked cell
+
+                        for (let j = 0; j < previousCellsInRow.length; j++) { // And add it also for all cells in row preceding
+                            if(previousCellsInRow[j].className != "permanentCheckCell") {
+                                previousCellsInRow[j].classList.add("deadCell");
+                            }
+                        }                
+                    } 
                 }
-            }        
+            }
         }
     }  
 
-    // Functions that help calculating the results and counting moves
-    function countMove(rowIndex, className) {
-        // Main grid 
-        if (rowIndex >= 1 && rowIndex <= 4) {            
-
-            // Main grid and cell checked: count + 1 move
-            if (className == "checkCell") {
-                move ++;
-            }
-
-             // Main grid and cell unchecked: count - 1 move
-             if (className == undefined) {
-                move --;
-             }
-        }
-
-        // -5 line
-        if (rowIndex == 5) {
-
-            // -5 line and cell checked: count + 2 moves
-            if (className == "checkCell") {
-                move += 2;
-            }
-
-            // -5 line and cell unchecked: count - 2 moves
-            if (className == undefined) {
-                move -=2;
-            }
-        }
-
-       move >= 1 ? enableButton() : null;
-       move == 0 ? disableButton() : null;
-    }
-
+    // Function that count points
     function countPoints(nbOfCheckedCellPerLine) {
         for (let i = 0; i < nbOfCheckedCellPerLine.length - 1; i++) { // For each line from the main grid
             for (let j = 0; j <= nbOfCheckedCellPerLine[i] ; j++) { // Add the number to the previous until the value in the index is reached
@@ -423,27 +517,24 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
                 cell.addEventListener("click", function() {
 
-                    if (displayDiceZone.innerText != "") {
-
                     // Update variable value for row information
                     rowOfCell = cell.parentElement;
-                    rowClassName = rowOfCell.classList;
                     rowIndex = rowOfCell.rowIndex;
 
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
+
+                    // When number of checkCell is exactly 2, clear out remaining dislay sum classes (could be a remaining because of the cells having 2 classes and we don't know which one is selected
+                    nbOfCheckCellFound() == 2 ? clearClass("allowedCell") : null;
+                    nbOfCheckCellFound() == 2 ? clearClass("allowCellColorLine") : null;
                     
                     // Last cell of a line? Let's have another round of updating the number of checked cell per line array
                     if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                         updateNbOfCheckedCellPerLineArray(rowIndex, cell.className)
-                    }  
-
-                    /* This section to verify points and nb of checked cells per line during game loop 
-                    messageZone.innerHTML = "Nombre de points : " + points + "<br/> Rouge : " + nbOfCheckedCellPerLine[0] + "<br/> Jaune : " + nbOfCheckedCellPerLine[1] + "<br/> Vert : " + nbOfCheckedCellPerLine[2] + "<br/> Bleu : " + nbOfCheckedCellPerLine[3] + "<br/> -5 : " + nbOfCheckedCellPerLine[4] + "<br/> Nb de coups : " + move;
-                    /* End of help section */
+                    }
 
                     // End of game?
                     askForEndOfGame();
-                }});
-                }
+                });
             }
+        }
