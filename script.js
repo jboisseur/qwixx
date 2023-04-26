@@ -1,13 +1,13 @@
 /* 
     Qwixx is a boardgame created by Steffen Benndor and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
-    Project started sometime in 2022. It was last updated on March 2023
+    Project started sometime in 2022. It was last updated on April 2023
 */
 
 /* 
-    TO-DO
-    version 3b: on a same line, cell with class .allowedCell should be left from cell with .allowCellColorLine class
-    other: create functions to avoid copy pasting
+    TO-DO    
+    Other
+    create functions to avoid copy pasting
 */
 
 "use strict"
@@ -37,7 +37,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     let playerName, rowIndex;
     messageZone.innerHTML = "To start the game, please click on the Roll dice button";
 
-    // Declare variables
+    // Declaration
     let cellClassName, rowOfCell;
 
 // Player name management
@@ -64,7 +64,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         cellMove2.class = null;
 
         // Call functions
-        clearClass("allowedCell")
+        clearClass("allowedCell");
         clearClass("allowCellColorLine");
         pastIsPast();
         rollDice();
@@ -254,7 +254,21 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         }
     }
 
-    // Function that counts number of checkCell clas within the grid
+    // Function that removes allowedCell class situation at the right in same row 
+    function removeAllowedCellInRow(cell) {
+        let cellIndex = cell.cellIndex;
+        let cellRow = cell.parentElement;
+
+        for (let i = cellIndex; i < 10; i++) {
+                if (cellRow.children[i].className == "allowedCell") {
+                   if (i > cellIndex && i != -1) {
+                    cellRow.children[i].classList.remove("allowedCell");
+                }
+            }
+        }        
+    }
+
+    // Function that counts number of checkCell class within the grid
     function nbOfCheckCellFound() {
         let nbOfCheckCellFound = 0;
         for (let i = 0; i < allTableCells.length; i++) {
@@ -286,6 +300,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
                 else if (cellMove1.class == "allowCellColorLine") {
                     colorDiceSum(allSums);
+                    whiteDiceSum(allSums);
                 }
 
                 // Clear up
@@ -366,8 +381,6 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                     
                     if (cell.classList == "allowedCell") {
                         clearClass("allowedCell");
-                        // TODELETE? cell.classList.remove("allowedCell");
-                        // TODELETE? cellClassName = "allowedCell";
 
                         if (nbOfCheckCellFound() == 0) {
                             cellMove1.cell = cell
@@ -382,8 +395,9 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
                     else if (cell.classList == "allowCellColorLine") {
                         clearClass("allowCellColorLine");
-                        // TODELETE? cell.classList.remove("allowCellColorLine");
-                        // TODELETE? cellClassName = "allowCellColorLine";
+
+                        // Remove allowedCell if any at the right in the same line
+                        removeAllowedCellInRow(cell)
 
                         if (nbOfCheckCellFound() == 0) {
                             cellMove1.cell = cell
@@ -408,8 +422,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                         else if (nbOfCheckCellFound() == 1) {
                             cellMove2.cell = cell
                             cellMove2.class = "allowedCell allowCellColorLine";
-                        }    
-                       // TODELETE? cellClassName = "allowedCell allowCellColorLine";      
+                        }        
                     }
                     
                     clearClass("minus5");                
@@ -448,7 +461,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                 }
             }
 
-            // End of the array should by the cellIndex      
+            // End of the array should be the cellIndex      
             for (let i = beginArray; i < cellIndex; i++) {
                 previousCellsInRow.push(cellRow.children[i]);
             }        
