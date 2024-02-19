@@ -1,5 +1,5 @@
 /* 
-    Qwixx is a boardgame created by Steffen Benndor and illustrated by O. & S. Freudenreich.
+    Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
     Project started sometime in 2022. It was last updated on April 2023
 */
@@ -14,10 +14,10 @@
 
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
-
+    
     // From HTML
     const playerNameZone = document.getElementById("playerName");
-    const allTableCells = Array.from(document.getElementsByTagName("td"));
+    const allTableCells = Array.from(document.querySelectorAll("#playerSheet td")); // previously Array.from(document.getElementsByTagName("td"))
 
         // Slicing the table
         const minus5Line = allTableCells.slice(45, 50);
@@ -29,16 +29,17 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     const displayDiceZone = document.getElementById("displayDice");
     const messageZone = document.getElementById("messageZone");
     const button = document.getElementById("rollDiceButton");
+    const bestScoreListZone = document.getElementById("bestScoreList");
 
     // Initialize data
     let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
     let cellMove1 = {cell: null, class: null}, cellMove2 = {cell: null, class: null};
     let lineClosed = 0, points = 0;
     let playerName, rowIndex;
-    messageZone.innerHTML = "To start the game, please click on the Roll dice button";
+    messageZone.innerHTML = "To start the game, please click on the Roll die button";
 
     // Declaration
-    let cellClassName, rowOfCell;
+    let cellClassName, rowOfCell; 
 
 // Player name management
     // Restore player's name with last game
@@ -82,7 +83,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
         // Roll back in case cell is unchecked
         else {
-            button.innerHTML = "Roll dice";
+            button.innerHTML = "Roll die";
             button.setAttribute("onclick", "newTurn()");  
         }
     }
@@ -103,14 +104,14 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
             return points > 1 || points < -1 ? 's' : '';            
         }
 
-        messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' point' + addS(points) + '. <a href="javascript:window.location.href=window.location.href">Start again</a>?';               
+        messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' point' + addS(points) + '. <a href="index.html">Start again</a>?';
     }
 
     function saveNameToSessionStorage() {
         playerName = playerNameZone.innerText;
         sessionStorage.setItem("autosave", playerName);
         return playerName;
-    }
+    }   
 
     // Disable / enable Roll dice button
     function disableButton() {
