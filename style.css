@@ -171,11 +171,15 @@ tfoot {
     #rules table {
        table-layout: fixed;
        width: 100%;
+       font-size: x-small;
     }
     #rules td {
         min-width: unset;
         min-height: unset;
         padding: 0.2em;
+    }
+    table {
+        width: 100%;
     }
     td {
         padding: 0;

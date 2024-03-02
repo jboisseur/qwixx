@@ -16,6 +16,7 @@
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
     
     // From HTML
+    const bestScoreList = document.getElementById("bestScoreList");
     const playerNameZone = document.getElementById("playerName");
     const allTableCells = Array.from(document.querySelectorAll("#playerSheet td")); // previously Array.from(document.getElementsByTagName("td"))
 
@@ -30,13 +31,14 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     const messageZone = document.getElementById("messageZone");
     const button = document.getElementById("rollDiceButton");
     const bestScoreListZone = document.getElementById("bestScoreList");
+    let bestScoreArray;
 
     // Initialize data
     let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
     let cellMove1 = {cell: null, class: null}, cellMove2 = {cell: null, class: null};
     let lineClosed = 0, points = 0;
     let playerName, rowIndex;
-    messageZone.innerHTML = "To start the game, please click on the Roll die button";
+    messageZone.innerHTML = "To start the game, please click on the Roll button";
 
     // Declaration
     let cellClassName, rowOfCell; 
@@ -51,6 +53,25 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     playerNameZone.addEventListener("click", () => {
         playerNameZone.innerHTML = "";
     })
+
+// Get best scores
+// Utiliser fetch plutôt que XML http request. Il faut pouvoir récupérer les informations en dehors de la requête pour pouvoir vérifier si le score obtenu fait partie des meilleurs scores
+const req = new XMLHttpRequest();
+req.open("GET",'scores.json',true);
+req.send();
+req.onload = function(){
+  const json = JSON.parse(req.responseText); 
+  for (let i = 0; i < json.player.length ; i++) {
+    bestScoreListZone.innerHTML += "<ol>" + json.player[i] + " : <span>" + json.score[i] + "</span> points</ol>";
+  }
+}
+
+document.addEventListener("DOMNodeInserted", () => {
+    bestScoreArray = document.querySelectorAll("ol span");
+    return bestScoreArray;
+})
+
+console.log(bestScoreArray);
 
 // Functions
     // Begin new turn
@@ -83,9 +104,13 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
         // Roll back in case cell is unchecked
         else {
-            button.innerHTML = "Roll die";
+            button.innerHTML = "Roll";
             button.setAttribute("onclick", "newTurn()");  
         }
+    }
+
+    function isBestScore(points) {
+        // TO DO                 
     }
 
     function endGame() {
@@ -105,6 +130,9 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         }
 
         messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' point' + addS(points) + '. <a href="index.html">Start again</a>?';
+
+        // Is it one of the best scores?
+        isBestScore(points);
     }
 
     function saveNameToSessionStorage() {

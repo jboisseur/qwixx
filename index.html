@@ -20,7 +20,7 @@
 
         <div id="playQwixx">
             <div id="diceZone">
-                <button id="rollDiceButton" onclick="newTurn()">Roll die</button>
+                <button id="rollDiceButton" onclick="newTurn()">Roll</button>
                 <div id="displayDice"></div>
             </div>
             <table id="playerSheet">
@@ -91,14 +91,16 @@
                     </tr>
                 </tbody>
             </table>
-            <div id="messageZone"></div>
+            <div id="messageZone">
+                <form action="sendScore.php" method="post">
+                    <input type="readyonly" id="sendScore" value="blabla"/>
+                </form>
+            </div>
         </div>
 
         <div id="bestScoreZone">
             <h2>Best scores</h2>
-            <p>To come</p>
-            <ul id="bestScoreList">
-            </ul>
+            <ul id="bestScoreList"></ul>
         </div>
 
         <hr>
