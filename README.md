@@ -1,10 +1,12 @@
 # qwixx
-Adaptation du jeu de société Qwixx
+Adapting Qwixx boardgame
 
-Auteur du jeu : Steffen Benndor ; illustrateurices : O. & S. Freudenreich
+Game creator: Steffen Benndor; illustraded by O. & S. Freudenreich
 
-<p>J'aime beaucoup ce jeu ; l'adapter pour le web me semble un exercice pertinent pour apprendre / réviser différents langages.</p>
+I like this game very much; from my perspective, adapting it for the web is a relevant exercise to learn/refresh about different languages.
 
-<p>Dans un premier temps, l'objectif est de pouvoir jouer en solo et de battre le record de points des autres participant(e)s. On pourra introduire la notion de plusieurs dans un deuxième temps.</p>
+## Version 1 (in progess)
+The goal is to play solo and having one of the best scores
 
-
+## Version 2
+Play up to 5

@@ -1,4 +1,1 @@
-{
-  "player": ["Player1", "Player2", "Player3", "Player4", "Player5"],
-  "score": [100, 60, 50, 40, 20]
-}
+[{"name":"Yoshi","score":1},{"name":"Robin","score":2},{"name":"Samantha","score":3},{"name":"Ada","score":4},{"name":"L","score":5}]
