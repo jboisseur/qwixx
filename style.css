@@ -23,24 +23,24 @@ html {
 }
 
 body {
-    width: 100vw;
+    width: 100%;
     margin: 0 auto;
 }
 
 nav {
-    display: flex;
-    justify-content: flex-end;
     background-color: var(--mediumblue);
-    width: 100vw;
+    width: 100%;
     position: fixed;
     top: 0;
-    z-index: 1;
     border-bottom: 1px solid var(--pen);
 }
   
-nav ul {
-    display: flex;
-    list-style-type: none;
+nav ul {   
+    list-style: none;
+}
+
+nav li {
+    float: left;
 }
 
 nav a {
@@ -84,6 +84,14 @@ button {
     text-align: center;
 }
 
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
 #bestScoreZone {
     text-align: center;
 }
@@ -106,7 +114,7 @@ button {
 
 footer {
     background-color: var(--mediumblue);
-    width: 100vw;
+    width: 100%;
     padding: 1em;
     font-size: xx-small;
 }

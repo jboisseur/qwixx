@@ -10,26 +10,6 @@
         <script src="script.js" defer></script>
     </head>
     <body>
-        <?php 
-          // Handling Best score form
-          if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $nameToAdd = $_POST["name"];
-            // Remove any character that is not a letter, a digit or a white space: use a regular expression to do so $nameToAdd = nameCleaned
-          };
-
-          if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $scoreToAdd = $_POST["score"];
-            // Change it to an INT and verify it's not more than the maximum
-          };
-
-          
-        function test_input($data) {
-            $data = trim($data);
-            $data = stripslashes($data);
-            $data = htmlspecialchars($data);
-            return $data;
-        }
-        ?>
         <nav>
             <ul>
                 <li><a href="#playQwixx">Play Qwixx</a></li>
@@ -111,12 +91,65 @@
                     </tr>
                 </tbody>
             </table>
-            <div id="messageZone"></div>
+            <div id="messageZone">
+            </div>
+
+            <?php 
+            // Handling Best score form
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                $nameToAdd = test_input($_POST["name"]);
+                $scoreToAdd = test_input($_POST["score"]);
+                intval($scoreToAdd);
+
+                // Update JSON file
+                    $fileName = 'scores.json';
+                    $arrayToAdd = array("name" => $nameToAdd, "score" => $scoreToAdd);
+
+                    // Get scores.json file
+                    $jsonString = file_get_contents($fileName); 
+                    $jsonData = json_decode($jsonString, true); // change it to an array
+
+                    // Add data to the array
+                    array_push($jsonData, $arrayToAdd);
+
+                    // Sort the array    
+                    $score = array_column($jsonData, 'score'); 
+                    array_multisort($score, SORT_DESC, $jsonData);
+
+                    // Get rid of last element
+                    array_pop($jsonData);
+
+                    // Transform back into a string
+                    $jsonData = json_encode($jsonData);
+
+                    // Replace file
+                    $myFile = fopen($fileName, "w") or die("Cannot open file!");
+                    fwrite($myFile, $jsonData);
+                    fclose($myFile);
+            };        
+
+            function test_input($data) {
+                $data = trim($data);
+                $data = stripslashes($data);
+                $data = htmlspecialchars($data);
+                return $data;
+            }                   
+            ?>
+
+            <div id="congrats" class="hide">
+                <p>Congrats! This is one of the 5 best score. Would you like to appear in the list?</p>
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="sendBestScore"> 
+                    <input type="text" name="name" value="" hidden>
+                    <input type="text" name="score" value="" hidden>
+                    <button type="submit" name="button">Yes!</button>
+                </form>
+            </div>
+
         </div>
 
         <div id="bestScoreZone">
             <h2>Best scores</h2>
-            <ul id="bestScoreList"></ul>
+            <ol id="bestScoreList"></ol>
         </div>
 
         <hr>

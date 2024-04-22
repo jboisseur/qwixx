@@ -16,9 +16,11 @@
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
     // From HTML
-    const bestScoreList = document.getElementById("bestScoreList");
+    let bestScoreList = document.getElementById("bestScoreList");
     const playerNameZone = document.getElementById("playerName");
     const allTableCells = Array.from(document.querySelectorAll("#playerSheet td")); // previously Array.from(document.getElementsByTagName("td"))
+    let nameToSend = document.querySelector('input[name="name"]');
+    let scoreToSend = document.querySelector('input[name="score"]');
 
         // Slicing the table
         const minus5Line = allTableCells.slice(45, 50);
@@ -54,7 +56,7 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
 // Best scores management
     function fetchScores(calledBy) {
-        fetch(new Request("scores.json"))
+        fetch(new Request("scores.json"), { cache: "no-cache" })
         .then((response) => response.json())
         .then((data) => {
             calledBy == "display" ? displayBestScore(data) : verifyIfBestScore(data);
@@ -81,14 +83,20 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     }
 
     function sendBestScore() {
-        messageZone.innerText += `<br>Congratulations, this is a new record! Would you like to appear on the Best score list?
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-        <input type="text" name="name" value="${playerName}"> <input type="text" name="score" value="${points}">
-        <button type="submit" name="button">Yes, send score</button>
-        </form>`;
+        // toggle show / hidden class for the button (input fields remain hidden)
+        document.getElementById("congrats").className = "show";
+
+        // update form values
+        nameToSend.value = playerName;
+        scoreToSend.value = points;
     }
 
-    fetchScores("display");
+    document.onreadystatechange = function(){ 
+        if (document.readyState === "complete") { 
+            bestScoreList.innerHTML = "";
+            fetchScores("display");
+        }
+    };    
 
 // Functions
     // Begin new turn
