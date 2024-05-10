@@ -94,19 +94,23 @@
             <div id="messageZone">
             </div>
 
-            <?php 
+            <?php
+            define("SCORE_MAX", 288);
+
             // Handling Best score form
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (!empty($_POST) && $_SERVER["REQUEST_METHOD"] == "POST") {
                 $nameToAdd = test_input($_POST["name"]);
+                $nameToAdd = substr($nameToAdd, 0, 15); // avoid too long names
                 $scoreToAdd = test_input($_POST["score"]);
                 intval($scoreToAdd);
+                $scoreToAdd = $scoreToAdd > SCORE_MAX ? 0 : $scoreToAdd;
 
                 // Update JSON file
-                    $fileName = 'scores.json';
                     $arrayToAdd = array("name" => $nameToAdd, "score" => $scoreToAdd);
 
                     // Get scores.json file
-                    $jsonString = file_get_contents($fileName); 
+                    $filename = 'scores.json';
+                    $jsonString = file_get_contents($filename); 
                     $jsonData = json_decode($jsonString, true); // change it to an array
 
                     // Add data to the array
@@ -116,28 +120,35 @@
                     $score = array_column($jsonData, 'score'); 
                     array_multisort($score, SORT_DESC, $jsonData);
 
+                    /*Remove duplicates -- continue this. sizeof($tableau) pour avoir sa taille
+                    var_dump(array_unique($jsonData));*/
+
                     // Get rid of last element
                     array_pop($jsonData);
 
                     // Transform back into a string
                     $jsonData = json_encode($jsonData);
 
-                    // Replace file
-                    $myFile = fopen($fileName, "w") or die("Cannot open file!");
+                    $myFile = fopen($filename, "w") or die("Cannot open file! Check permissions on json file");
                     fwrite($myFile, $jsonData);
                     fclose($myFile);
-            };        
+
+                    // Prevent resubmission
+                    header("Location: " . $_SERVER["REQUEST_URI"]); 
+                    exit; 
+            }
 
             function test_input($data) {
                 $data = trim($data);
                 $data = stripslashes($data);
                 $data = htmlspecialchars($data);
                 return $data;
-            }                   
+            }
             ?>
 
             <div id="congrats" class="hide">
-                <p>Congrats! This is one of the 5 best score. Would you like to appear in the list?</p>
+                <p>&#127881; Congrats! This is one of the best scores.<br>
+                Would you like to appear in the list?</p>
                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="sendBestScore"> 
                     <input type="text" name="name" value="" hidden>
                     <input type="text" name="score" value="" hidden>

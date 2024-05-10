@@ -33,6 +33,7 @@ nav {
     position: fixed;
     top: 0;
     border-bottom: 1px solid var(--pen);
+    z-index: 1;
 }
   
 nav ul {   
@@ -56,7 +57,7 @@ nav a:hover {
 }
 
 #playQwixx, #bestScoreZone {
-    height: 100vh;
+    /*height: 100vh;*/
     padding: 5em;
 }
 
@@ -148,8 +149,8 @@ th {
 }
 
 td {
-    width: 4vw; 
-    height: 4vw;
+    width: calc(4vw + 2px); 
+    height: calc(4vw + 2px);
     padding: 1em;
 }
 
@@ -165,38 +166,19 @@ tfoot {
     padding: 0.5em;
 }
 
-@media screen and (max-width: 550px) {
-    #playQwixx, #rules, #bestScoreZone {
-        margin: auto;
-        padding-left: 0;
-        padding-right: 0;
-    }
-    #rules {
-        width: 100vw;
-        padding-left: 1em;
-        padding-right: 1em;
-    }
-    #rules table {
-       table-layout: fixed;
-       width: 100%;
-       font-size: x-small;
-    }
-    #rules td {
-        min-width: unset;
-        min-height: unset;
-        padding: 0.2em;
-    }
-    table {
-        width: 100%;
-    }
-    td {
-        padding: 0;
-        width: 8vw;
-        height: 8vw;
-    }
-    nav {
-        justify-content: center;
-    }
+/* congrats */
+
+#congrats {
+    background-color: var(--lightblue);
+    border: 1px solid var(--darkblue);
+    border-radius: 5px;
+    padding: 1em;
+    text-align: center;
+    margin: 1em;
+}
+
+#congrats button {
+    margin: 1em auto 0 auto;
 }
 
 /* WARNING - Begins */
@@ -246,25 +228,63 @@ tfoot {
 
 /* cell make up */
 .allowedCell, .allowCellColorLine, .minus5 {
-    border: 2px solid var(--black);
+    box-shadow: 0px 0px 0px 2px var(--black) inset;
 }
 
 .checkCell, .permanentCheckCell {
     background:linear-gradient(
     to bottom right, 
     transparent  calc(50% - 2px), 
-    var(--pen)        calc(50% - 2px), 
-    var(--pen)         calc(50% + 2px) , 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
     transparent  calc(50% + 2px)
     ),
         
     linear-gradient(
     to bottom left, 
     transparent  calc(50% - 2px), 
-    var(--pen)         calc(50% - 2px), 
-    var(--pen)         calc(50% + 2px) , 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
     transparent  calc(50% + 2px)
   );
 }
 
-/* WARNING - Ends */ 
+/* WARNING - Ends */
+
+@media screen and (max-width: 550px) {
+    #playQwixx, #rules, #bestScoreZone {
+        margin: auto;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    #rules {
+        width: 100vw;
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+    #rules table {
+       table-layout: fixed;
+       width: 100%;
+       font-size: x-small;
+    }
+    #rules td {
+        min-width: unset;
+        min-height: unset;
+        padding: 0.2em;
+    }
+    table {
+        width: 100%;
+    }
+    td {
+        padding: 0;
+        width: calc(8vw + 2px);
+        height: calc(8vw + 2px);
+    }
+    nav ul {
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .allowedCell, .allowCellColorLine, .minus5 {
+        box-shadow: 0px 0px 0px 1px var(--black) inset;
+    }
+}
