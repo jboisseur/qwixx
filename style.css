@@ -57,8 +57,28 @@ nav a:hover {
 }
 
 #playQwixx, #bestScoreZone {
-    /*height: 100vh;*/
     padding: 5em;
+}
+
+#bestScoreZone ol {
+    padding-top: 0.5em;
+    list-style-position: inside;
+}
+
+#bestScoreZone li {
+    padding: 0.5em 0;
+}
+
+#bestScoreZone li:nth-child(1)::before {
+    content: "🥇 ";
+}
+
+#bestScoreZone li:nth-child(2)::before {
+    content: "🥈 ";
+}
+
+#bestScoreZone li:nth-child(3)::before {
+    content: "🥉 ";
 }
 
 body, #diceZone {    
