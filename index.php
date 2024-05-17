@@ -3,9 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Play Qwixx online! An unofficial fan site.">
         <title>Play Qwixx online</title>
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
         <script src="https://kit.fontawesome.com/7d59c9faf1.js" crossorigin="anonymous"></script>
         <script src="script.js" defer></script>
     </head>
@@ -108,30 +110,41 @@
                 // Update JSON file
                     $arrayToAdd = array("name" => $nameToAdd, "score" => $scoreToAdd);
 
-                    // Get scores.json file
-                    $filename = 'scores.json';
-                    $jsonString = file_get_contents($filename); 
-                    $jsonData = json_decode($jsonString, true); // change it to an array
+                    // File names (BSF means BestScoreFile)
+                    $alltime_bsf = "scores.json";
+                    $today_bsf = "todayscores.json";
 
-                    // Add data to the array
-                    array_push($jsonData, $arrayToAdd);
+                    function updateFile($bsf) {
+                        global $arrayToAdd;
 
-                    // Sort the array    
-                    $score = array_column($jsonData, 'score'); 
-                    array_multisort($score, SORT_DESC, $jsonData);
+                        // Get file
+                        $filename = $bsf;
+                        $jsonString = file_get_contents($filename); 
 
-                    /*Remove duplicates -- continue this. sizeof($tableau) pour avoir sa taille
-                    var_dump(array_unique($jsonData));*/
+                        // Change it to an array
+                        $jsonData = json_decode($jsonString, true); 
 
-                    // Get rid of last element
-                    array_pop($jsonData);
+                        // Add data to the array
+                        array_push($jsonData, $arrayToAdd);
 
-                    // Transform back into a string
-                    $jsonData = json_encode($jsonData);
+                        // Sort the array    
+                        $score = array_column($jsonData, 'score'); 
+                        array_multisort($score, SORT_DESC, $jsonData);
 
-                    $myFile = fopen($filename, "w") or die("Cannot open file! Check permissions on json file");
-                    fwrite($myFile, $jsonData);
-                    fclose($myFile);
+                        // Get rid of last element
+                        array_pop($jsonData);
+
+                        // Transform back into a string
+                        $jsonData = json_encode($jsonData);
+
+                        $myFile = fopen($filename, "w") or die("Cannot open file! Check permissions on json file");
+                        fwrite($myFile, $jsonData);
+                        fclose($myFile);
+                    }
+
+                    // Call function
+                    updateFile($alltime_bsf);
+                    updateFile($today_bsf);
 
                     // Prevent resubmission
                     header("Location: " . $_SERVER["REQUEST_URI"]); 
@@ -160,7 +173,11 @@
 
         <div id="bestScoreZone">
             <h2>Best scores</h2>
+            <h3>All time</h3>
             <ol id="bestScoreList"></ol>
+
+            <h3>Today</h3>
+            <ol id="todayBestScoreList"></ol>
         </div>
 
         <hr>
@@ -171,7 +188,7 @@
             <h3>Goal</h3>
                 <p>Score the most points by crossing out as many numbers in the four color-rows as possible while avoiding penalty points.</p>
             <h3>How to play</h3>
-                <p>In this solo version, you're always the "main player" and roll all six die every turn. You have to cross at least one number (into the four color-rows or a penalty) and a maximum of two into the four color-rows.</p>
+                <p>In this solo version, you're always the "main player" and roll all six dice every turn. You have to cross at least one number (into the four color-rows or a penalty) and a maximum of two into the four color-rows.</p>
                 <p>The cell you can cross is either:</p>
                     <ul>
                         <li>a penalty cell;</li>
@@ -234,7 +251,7 @@
         <footer>
             <h3>Credits</h3>
             <p>Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. &amp; S. Freudenreich.<br>
-            This flawed web version is the work of <a href="https://julietoral.ovh/" title="Julie's webdev blog">Julie Boissière-Vasseur</a>, as part of webdevelopment studies.</p>
+            This flawed web version is the work of <a href="https://julietoral.ovh/" title="Julie's webdev blog">Julie Boissière-Vasseur</a>, as part of webdevelopment studies. <a href="https://github.com/jboisseur/qwixx" title="GitHub Project Repository">GitHub Project Repository <i class="fa-brands fa-github" aria-hidden="true"></i></a></p>
         </footer>
 
     </body>

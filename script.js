@@ -1,7 +1,7 @@
 /*
     Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
-    Project started sometime in 2022. It was last updated on April 2023
+    Project started sometime in 2022. It was last updated on May 2024
 */
 
 /*
@@ -15,8 +15,13 @@
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
 
+    // File names
+    const allTimeBestScoreFile = "scores.json";
+    const todayBestScoreFileFile = "todayscores.json";
+    
     // From HTML
     let bestScoreList = document.getElementById("bestScoreList");
+    let todayBestScoreList = document.getElementById("todayBestScoreList");
     const playerNameZone = document.getElementById("playerName");
     const allTableCells = Array.from(document.querySelectorAll("#playerSheet td")); // previously Array.from(document.getElementsByTagName("td"))
     let nameToSend = document.querySelector('input[name="name"]');
@@ -55,21 +60,21 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     })
 
 // Best scores management
-    function fetchScores(calledBy) {
-        fetch(new Request("scores.json"), { cache: "no-cache" })
+    function fetchScores(calledBy, file = 0) {
+        fetch(new Request(file), { cache: "no-cache" })
         .then((response) => response.json())
         .then((data) => {
-            calledBy == "display" ? displayBestScore(data) : verifyIfBestScore(data);
+            calledBy == "display" ? displayBestScore(data, file) : verifyIfBestScore(data);
         })
         .catch(console.error);
     }
 
-    function displayBestScore(data = null) {
+    function displayBestScore(data = null, file) {
         for (let item of data) {
             let listItem = document.createElement("li");
             listItem.appendChild(document.createElement("strong")).textContent = item.name;
             listItem.append(` : ${item.score} points`);
-            bestScoreList.appendChild(listItem);
+            file == allTimeBestScoreFile ? bestScoreList.appendChild(listItem) : todayBestScoreList.appendChild(listItem);
         }
     }
 
@@ -93,8 +98,13 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
     document.onreadystatechange = function(){ 
         if (document.readyState === "complete") { 
+            // All time best scores
             bestScoreList.innerHTML = "";
-            fetchScores("display");
+            fetchScores("display", allTimeBestScoreFile);
+
+            // Today best scores
+            todayBestScoreList.innerHTML = "";
+            fetchScores("display", todayBestScoreFileFile);
         }
     };    
 
@@ -153,7 +163,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
         messageZone.innerHTML = 'End of game! ' + playerName + ', you have ' + points + ' point' + addS(points) + '. <a href="index.php">Start again</a>?';
 
         // Is it one of the best scores?
-        fetchScores("verify");
+        fetchScores("verify", allTimeBestScoreFile);
+        fetchScores("verify", todayBestScoreFileFile);
     }
 
     function saveNameToSessionStorage() {

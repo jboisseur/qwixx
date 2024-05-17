@@ -101,7 +101,7 @@ button {
 }
 
 #messageZone {
-    margin-top: 0.5em;
+    margin: 0.5em;
     text-align: center;
 }
 
@@ -115,6 +115,10 @@ button {
 
 #bestScoreZone {
     text-align: center;
+}
+
+#bestScoreZone h3 {
+    margin: 1em auto 0 auto;
 }
 
 #rules {
@@ -137,15 +141,12 @@ footer {
     background-color: var(--mediumblue);
     width: 100%;
     padding: 1em;
-    font-size: xx-small;
+    font-size: x-small;
+    color: white;
 }
 
 footer a {
     color: var(--beige);
-}
-  
-footer a:hover {
-    text-decoration: underline;
 }
 
 footer a:visited {
