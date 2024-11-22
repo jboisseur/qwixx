@@ -1,19 +1,26 @@
-/*
+/**********
     Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
-    Project started sometime in 2022. It was last updated on May 2024
-*/
-
-/*
-    TO-DO
-    Other
-    create functions to avoid copy pasting
-*/
+    Project started sometime in 2022. It was last updated on November 2024
+**********/
 
 "use strict"
 
 // Variables
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
+
+const gridType = [
+    {
+      name: "classicGrid",
+      architecture: [
+          { numbers: "2,3,4,5,6,7,8,9,10,11,12", color: "red" },
+          { numbers: "2,3,4,5,6,7,8,9,10,11,12", color: "yellow" },
+          { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "green" },
+          { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "blue" }      
+      ],
+      rules: [basicRules]
+    }
+  ]
 
     // File names
     const allTimeBestScoreFile = "scores.json";
@@ -22,17 +29,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
     // From HTML
     let bestScoreList = document.getElementById("bestScoreList");
     let todayBestScoreList = document.getElementById("todayBestScoreList");
-    const playerNameZone = document.getElementById("playerName");
-    const allTableCells = Array.from(document.querySelectorAll("#playerSheet td")); // previously Array.from(document.getElementsByTagName("td"))
     let nameToSend = document.querySelector('input[name="name"]');
     let scoreToSend = document.querySelector('input[name="score"]');
-
-        // Slicing the table
-        const minus5Line = allTableCells.slice(45, 50);
-        const redLine = allTableCells.slice(0, 11);
-        const yellowLine = allTableCells.slice(11, 22);
-        const greenLine = allTableCells.slice(22, 33);
-        const blueLine = allTableCells.slice(33, 44);
 
     const displayDiceZone = document.getElementById("displayDice");
     const messageZone = document.getElementById("messageZone");
@@ -47,6 +45,73 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 
     // Declaration
     let cellClassName, rowOfCell;
+
+// Build grid
+const generateGrid = (gridSelected, playerSheetNumber) => {
+    // getData
+    const gridTypeIndex = gridType.findIndex((element) => element.name == gridSelected);
+    const data = gridType[gridTypeIndex].architecture;
+    
+    // Create table
+    const grid = document.createElement("table");
+    grid.setAttribute("id", `playerSheet`)
+    displayDiceZone.insertAdjacentElement("afterend", grid);
+
+    // Create table head
+    const tableHeader = grid.createTHead();
+    grid.insertRow();
+    const th = document.createElement("th");
+    th.setAttribute("scope", "colgroup");
+    th.setAttribute("colspan", "11");
+    th.setAttribute("contenteditable", "true");
+    th.setAttribute("id", "playerName");
+    th.textContent = "Enter your name"
+    tableHeader.appendChild(th);
+    
+    // Create rows
+    data.forEach( () => grid.insertRow());
+    const rows = grid.rows;
+    
+    // Create and populate cells for each row
+    for (let i = 0; i < rows.length - 1; i++) {
+      const row = data[i].numbers.split(",");
+      row.forEach( (item, index) => {
+        // add row background color
+        rows[i].setAttribute("class", `${data[i].color}bg`);
+        // add cell
+        rows[i].insertCell();
+        const cell = rows[i].cells[index];
+        // add number
+        cell.innerHTML = item;
+        // add color cell.style.backgroundColor = `var(--${data[i].color})`;
+      })
+    }
+
+    // Add malus row
+    grid.insertRow();
+    const lastRowIndex = rows.length - 1;
+    rows[lastRowIndex].insertCell();
+    rows[lastRowIndex].cells[0].setAttribute("colspan", "7");
+
+    for (let i = 1; i < 5; i++) {
+        rows[lastRowIndex].insertCell();
+        rows[lastRowIndex].cells[i].innerHTML = "-5";
+    }                       
+  }
+
+  generateGrid('classicGrid', 0);
+
+  // Variables from created grid
+  const playerNameZone = document.getElementById("playerName");
+  const allTableCells = Array.from(document.querySelectorAll("#playerSheet td"));
+
+          // Slicing the table
+          const minus5Line = allTableCells.slice(45, 50);
+          const redLine = allTableCells.slice(0, 11);
+          const yellowLine = allTableCells.slice(11, 22);
+          const greenLine = allTableCells.slice(22, 33);
+          const blueLine = allTableCells.slice(33, 44);
+  
 
 // Player name management
     // Restore player's name with last game
@@ -612,3 +677,44 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
                 });
             }
         }
+
+
+/*** Multiple grid and multiple players approach ***/
+  const setGame = () => {
+    const nbOfPlayers = Number(document.getElementById("nbofplayers").value);
+    const gridSelected = document.getElementById("gridtype").value;
+    
+    // generate a grid for each player  
+    for (i = 0; i < nbOfPlayers; i++) {
+      generateGrid(gridSelected, i);
+    }
+    
+    // gather a rule set
+  }
+  
+  /*** Rules ***/
+
+  /** Basic rules package **/
+  // Rule 01 | Cross a first cell  
+  // Rule 02 | Cross a second cell
+  // Rule 03 | Mandatory crossing  
+  // Rule 04 | Cross last cell of a line
+  
+  /*** Player data ***/
+  let playerData = {
+    playerId: [0, 1], // incremental
+    playerName: ["Link", "Zelda"]
+  }
+  
+  /*** Turn data ***/
+  let turnData = {
+    mainPlayerId: 0, // id of main player
+    cellCrossed: false // one value per player 
+  }
+  
+  /*** Game data ***/
+  let gameData = {
+    closedLine: 0,
+    maxMalusCrossed: 0
+  }
+  
