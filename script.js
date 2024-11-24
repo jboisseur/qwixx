@@ -18,7 +18,7 @@ const gridType = [
           { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "green" },
           { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "blue" }      
       ],
-      rules: [basicRules]
+      rules: ""
     }
   ]
 
@@ -44,10 +44,10 @@ const gridType = [
     messageZone.innerHTML = "To start the game, please click on the Roll button";
 
     // Declaration
-    let cellClassName, rowOfCell;
+    let cellClassName;
 
 // Build grid
-const generateGrid = (gridSelected, playerSheetNumber) => {
+const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     // getData
     const gridTypeIndex = gridType.findIndex((element) => element.name == gridSelected);
     const data = gridType[gridTypeIndex].architecture;
@@ -59,7 +59,6 @@ const generateGrid = (gridSelected, playerSheetNumber) => {
 
     // Create table head
     const tableHeader = grid.createTHead();
-    grid.insertRow();
     const th = document.createElement("th");
     th.setAttribute("scope", "colgroup");
     th.setAttribute("colspan", "11");
@@ -68,27 +67,28 @@ const generateGrid = (gridSelected, playerSheetNumber) => {
     th.textContent = "Enter your name"
     tableHeader.appendChild(th);
     
-    // Create rows
-    data.forEach( () => grid.insertRow());
-    const rows = grid.rows;
-    
     // Create and populate cells for each row
-    for (let i = 0; i < rows.length - 1; i++) {
+    for (let i = 0; i < 4; i++) {
+
+      // Create rows
+      grid.insertRow();
+      const rows = grid.rows;
+      rows[i].setAttribute("class", `${data[i].color}bg`); // add row background color
+
+      // Create cells  
       const row = data[i].numbers.split(",");
-      row.forEach( (item, index) => {
-        // add row background color
-        rows[i].setAttribute("class", `${data[i].color}bg`);
-        // add cell
+      row.forEach( (item, index) => {     
         rows[i].insertCell();
         const cell = rows[i].cells[index];
         // add number
-        cell.innerHTML = item;
+         cell.innerHTML = item;
         // add color cell.style.backgroundColor = `var(--${data[i].color})`;
-      })
+        })
     }
 
     // Add malus row
     grid.insertRow();
+    const rows = grid.rows;
     const lastRowIndex = rows.length - 1;
     rows[lastRowIndex].insertCell();
     rows[lastRowIndex].cells[0].setAttribute("colspan", "7");
@@ -99,19 +99,27 @@ const generateGrid = (gridSelected, playerSheetNumber) => {
     }                       
   }
 
-  generateGrid('classicGrid', 0);
+  generateGrid('classicGrid');
 
   // Variables from created grid
-  const playerNameZone = document.getElementById("playerName");
+  const playerNameZone = document.getElementById("playerName"); 
+  const allTableRows = document.querySelectorAll("#playerSheet > tbody > tr");
   const allTableCells = Array.from(document.querySelectorAll("#playerSheet td"));
 
           // Slicing the table
-          const minus5Line = allTableCells.slice(45, 50);
+          /* WAS const minus5Line = allTableCells.slice(45, 50);
           const redLine = allTableCells.slice(0, 11);
           const yellowLine = allTableCells.slice(11, 22);
           const greenLine = allTableCells.slice(22, 33);
-          const blueLine = allTableCells.slice(33, 44);
-  
+          const blueLine = allTableCells.slice(33, 44); */
+          let allLines = [];
+
+          for (let i = 0; i < 5; i++) {
+            allLines[i] = Array.from(allTableRows[i].children)
+            if (i == 4) { allLines[i].shift(); }
+          }
+
+          const [redLine, yellowLine, greenLine, blueLine, minus5Line] = allLines;  
 
 // Player name management
     // Restore player's name with last game
@@ -657,11 +665,15 @@ const generateGrid = (gridSelected, playerSheetNumber) => {
                 cell.addEventListener("click", function() {
 
                     // Update variable value for row information
-                    rowOfCell = cell.parentElement;
-                    rowIndex = rowOfCell.rowIndex;
+                    rowIndex = cell.parentElement.rowIndex;
 
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
+
+                    // TESTING: verify a list of rules. If all true, allow applying checkCell class
+                    rule01(cell);
+                    rule02(cell);
+                    rule03(cell);               
 
                     // When number of checkCell is exactly 2, clear out remaining dislay sum classes (could be a remaining because of the cells having 2 classes and we don't know which one is selected
                     nbOfCheckCellFound() == 2 ? clearClass("allowedCell") : null;
@@ -695,9 +707,51 @@ const generateGrid = (gridSelected, playerSheetNumber) => {
   /*** Rules ***/
 
   /** Basic rules package **/
-  // Rule 01 | Cross a first cell  
-  // Rule 02 | Cross a second cell
-  // Rule 03 | Mandatory crossing  
+  // Rule 01 | Cross white dice sum cell
+    const rule01 = (cell) => {
+       return allSums[0] === Number(cell.innerText);
+    }
+
+  // Rule 02 | Cross color dice sum cell
+    const rule02 = (cell) => {
+        const cellNumber = Number(cell.innerText);
+        switch(cell.parentElement.className) {
+            case "redbg":
+                return cellNumber === allSums[1] || cellNumber === allSums[5];
+            case "yellowbg":
+                return cellNumber === allSums[2] || cellNumber === allSums[6];
+            case "greenbg":
+                return cellNumber === allSums[3] || cellNumber === allSums[7];
+            case "bluebg":
+                return cellNumber === allSums[4] || cellNumber === allSums[8];
+            default: 
+                return false;
+        }
+    }
+
+  // Rule 03 | Cross from left to right
+    const rule03 = (cell) => {
+        const row = Array.from(cell.parentElement.cells);
+        let checkedList = "";
+
+        // Get list of cells already checked
+        checkedList = row.filter( (item) => 
+               item.classList.contains("permanentCheckCell") 
+            || item.classList.contains("checkCell") 
+            && item != cell
+        );
+
+        // Get indexes of those cells
+        checkedList.forEach( (item, index) => { checkedList[index] = item.cellIndex });
+
+        // Compare indexes. Last one from the checkedList is the highest
+        return checkedList.length > 0 ? cell.cellIndex > checkedList[checkedList.length - 1] : true;
+    }
+  
+  
+  //Mandatory crossing
+
+  
   // Rule 04 | Cross last cell of a line
   
   /*** Player data ***/
