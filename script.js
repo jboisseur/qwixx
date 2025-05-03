@@ -1,26 +1,17 @@
+import { Grid } from "./Grid.js";
+import { Player, PlayerSelection, PlayerScoreSheet } from "./Player.js";
+
 /**********
     Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
-    Project started sometime in 2022. It was last updated on November 2024
+    Project started sometime in 2022. It was last updated on April 2025
 **********/
 
 "use strict"
 
 // Variables
-const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6
-
-const gridType = [
-    {
-      name: "classicGrid",
-      architecture: [
-          { numbers: "2,3,4,5,6,7,8,9,10,11,12", color: "red" },
-          { numbers: "2,3,4,5,6,7,8,9,10,11,12", color: "yellow" },
-          { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "green" },
-          { numbers: "12,11,10,9,8,7,6,5,4,3,2", color: "blue" }      
-      ],
-      rules: ""
-    }
-  ]
+    // Data
+    const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6  
 
     // File names
     const allTimeBestScoreFile = "scores.json";
@@ -37,81 +28,36 @@ const gridType = [
     const button = document.getElementById("rollDiceButton");
 
     // Initialize data
-    let nbOfCheckedCellPerLine = [0, 0, 0, 0, 0], pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
+    let pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
     let cellMove1 = {cell: null, class: null}, cellMove2 = {cell: null, class: null};
     let lineClosed = 0, points = 0;
-    let playerName, rowIndex;
+    let playerNames, rowIndex;
     messageZone.innerHTML = "To start the game, please click on the Roll button";
 
     // Declaration
     let cellClassName;
 
 // Build grid
-const generateGrid = (gridSelected, playerSheetNumber = 0) => {
-    // getData
-    const gridTypeIndex = gridType.findIndex((element) => element.name == gridSelected);
-    const data = gridType[gridTypeIndex].architecture;
-    
-    // Create table
-    const grid = document.createElement("table");
-    grid.setAttribute("id", `playerSheet`)
-    displayDiceZone.insertAdjacentElement("afterend", grid);
+const grid = new Grid("classicGrid");
+displayDiceZone.insertAdjacentElement("afterend", grid.generateGrid());
 
-    // Create table head
-    const tableHeader = grid.createTHead();
-    const th = document.createElement("th");
-    th.setAttribute("scope", "colgroup");
-    th.setAttribute("colspan", "11");
-    th.setAttribute("contenteditable", "true");
-    th.setAttribute("id", "playerName");
-    th.textContent = "Enter your name"
-    tableHeader.appendChild(th);
-    
-    // Create and populate cells for each row
-    for (let i = 0; i < 4; i++) {
-
-      // Create rows
-      grid.insertRow();
-      const rows = grid.rows;
-      rows[i].setAttribute("class", `${data[i].color}bg`); // add row background color
-
-      // Create cells  
-      const row = data[i].numbers.split(",");
-      row.forEach( (item, index) => {     
-        rows[i].insertCell();
-        const cell = rows[i].cells[index];
-        // add number
-         cell.innerHTML = item;
-        // add color cell.style.backgroundColor = `var(--${data[i].color})`;
-        })
+  // Variables from created grids
+  const playerNamesZone = getPlayerNamesZone();
+  
+  function getPlayerNamesZone() {
+    let array = [];
+    for (let i = 0; i < 5; i++) {
+        let element = document.getElementById(`playerName${i}`);
+        if (element) { array.push(element) }
     }
-
-    // Add malus row
-    grid.insertRow();
-    const rows = grid.rows;
-    const lastRowIndex = rows.length - 1;
-    rows[lastRowIndex].insertCell();
-    rows[lastRowIndex].cells[0].setAttribute("colspan", "7");
-
-    for (let i = 1; i < 5; i++) {
-        rows[lastRowIndex].insertCell();
-        rows[lastRowIndex].cells[i].innerHTML = "-5";
-    }                       
+    return array;
   }
 
-  generateGrid('classicGrid');
+  // TODO: update for multiplayer
+  const allTableRows = document.querySelectorAll("#playerSheet0 > tbody > tr");
+  const allTableCells = Array.from(document.querySelectorAll("#playerSheet0 td"));
 
-  // Variables from created grid
-  const playerNameZone = document.getElementById("playerName"); 
-  const allTableRows = document.querySelectorAll("#playerSheet > tbody > tr");
-  const allTableCells = Array.from(document.querySelectorAll("#playerSheet td"));
-
-          // Slicing the table
-          /* WAS const minus5Line = allTableCells.slice(45, 50);
-          const redLine = allTableCells.slice(0, 11);
-          const yellowLine = allTableCells.slice(11, 22);
-          const greenLine = allTableCells.slice(22, 33);
-          const blueLine = allTableCells.slice(33, 44); */
+          // Slicing the table - Still useful for minus5Line
           let allLines = [];
 
           for (let i = 0; i < 5; i++) {
@@ -119,17 +65,22 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
             if (i == 4) { allLines[i].shift(); }
           }
 
-          const [redLine, yellowLine, greenLine, blueLine, minus5Line] = allLines;  
+          const [redLine, yellowLine, greenLine, blueLine, minus5Line] = allLines;
+
+// Build player
+const player = new Player(0, true);
+const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]);
 
 // Player name management
-    // Restore player's name with last game
+    // Restore player's names with last game
     if (sessionStorage.getItem("autosave")) {
-        playerNameZone.innerHTML = sessionStorage.getItem("autosave");
+        playerNamesZone.forEach((item, index) => { item.innerHTML = JSON.parse(sessionStorage.getItem("autosave"))[index] });
     }
 
-    // Allow player to edit name
-    playerNameZone.addEventListener("click", () => {
-        playerNameZone.innerHTML = "";
+    // Allow players to edit name
+    playerNamesZone.forEach((item) => { 
+        item.addEventListener("click", () => { 
+            item.innerHTML = "" })
     })
 
 // Best scores management
@@ -165,7 +116,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
         document.getElementById("congrats").className = "show";
 
         // update form values
-        nameToSend.value = playerName;
+        nameToSend.value = playerNamesZone[0];
         scoreToSend.value = points;
     }
 
@@ -182,6 +133,9 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     };    
 
 // Functions
+    // Start game
+    button.addEventListener('click', newTurn);
+
     // Begin new turn
     function newTurn() {
         // Reset data
@@ -204,16 +158,16 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     // End game
     function askForEndOfGame() {
         // Game can end if two lines are closed or 4 negative cells are checked
-        if (lineClosed == 2 || nbOfCheckedCellPerLine[4] == 4) {
+        if (lineClosed == 2 || playerScoresheet.nbOfCheckedCellPerLine[4] == 4) {
             // If so, change button text and function called onclick
             button.innerHTML = "End game?";
-            button.setAttribute("onclick", "endGame()");
+            button.addEventListener('click', endGame);
         }
 
         // Roll back in case cell is unchecked
         else {
             button.innerHTML = "Roll";
-            button.setAttribute("onclick", "newTurn()");
+            button.addEventListener('click', newTurn);
         }
     };
 
@@ -225,8 +179,8 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
         displayDiceZone.innerText = "";
 
         // Getting points and player name
-        points = countPoints(nbOfCheckedCellPerLine);
-        saveNameToSessionStorage();
+        points = countPoints(playerScoresheet.nbOfCheckedCellPerLine);
+        let playerName = saveNameToSessionStorage();
 
         // Displaying end of game message
         function addS(points) {
@@ -241,9 +195,15 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     }
 
     function saveNameToSessionStorage() {
-        playerName = playerNameZone.innerText;
-        sessionStorage.setItem("autosave", playerName);
-        return playerName;
+        let namesToSave = [];
+
+        playerNamesZone.forEach((item) => { 
+            namesToSave.push(item.innerText);
+        })
+
+        sessionStorage.setItem("autosave", JSON.stringify({ ...namesToSave}));
+
+        return playerNamesZone[0].innerText; // TODO: update for multiplayer approach
     }
 
     // Disable / enable Roll dice button
@@ -292,8 +252,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
             allSums.push(diceArray[1] + diceArray[i + 1]);
         };
 
-        whiteDiceSum(allSums);
-        colorDiceSum(allSums);
+        showAllowedCell();
         displayMinusFiveCell();
 
         return allSums
@@ -313,52 +272,20 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
         }
     }
 
-    function whiteDiceSum(allSums) {
-    // Applies allowedCell class for the full table for white dice sum
+    function showAllowedCell() {
+    // Applies allowedCell or allowCellColorLine class for the full table
         for (let i = 0; i < allTableCells.length; i++) {
-            if (allTableCells[i].innerText == allSums[0]) {
-                if (allTableCells[i].className == "") {
+            if (rule05(allTableCells[i])) {
+                if (rule01(allTableCells[i])) {
                     allTableCells[i].classList.add("allowedCell");
                 }
-            }
-        }
-    }
 
-    function colorDiceSum(allSums) {
-    // Let's apply allowCellColorLine per line
-    // TO-DO: to avoid loop repetition, this could be transformed into a function with allSums array indexes and slicing from and to as arguments
-        for (let i = 0; i < redLine.length; i++) {
-            if (redLine[i].innerText == allSums[1] || redLine[i].innerText == allSums[5]) {
-                    if (redLine[i].classList == "" || redLine[i].classList.contains("allowedCell")) {
-                        redLine[i].classList.add("allowCellColorLine");
-                    }
-            }
-        }
-
-        for (let i = 0; i < yellowLine.length; i++) {
-            if (yellowLine[i].innerText == allSums[2] || yellowLine[i].innerText == allSums[6]) {
-                if (yellowLine[i].classList == "" || yellowLine[i].classList.contains("allowedCell")) {
-                    yellowLine[i].classList.add("allowCellColorLine");
+                if (rule02(allTableCells[i])) {
+                    allTableCells[i].classList.add("allowCellColorLine");
                 }
             }
         }
-
-        for (let i = 0; i < greenLine.length; i++) {
-            if (greenLine[i].innerText == allSums[3] || greenLine[i].innerText == allSums[7]) {
-                if (greenLine[i].classList == "" || greenLine[i].classList.contains("allowedCell")) {
-                    greenLine[i].classList.add("allowCellColorLine");
-                }
-            }
-        }
-
-        for (let i = 0; i < blueLine.length; i++) {
-            if (blueLine[i].innerText == allSums[4] || blueLine[i].innerText == allSums[8]) {
-                if (blueLine[i].classList == "" || blueLine[i].classList.contains("allowedCell")) {
-                    blueLine[i].classList.add("allowCellColorLine");
-                }
-            }
-        }
-    }
+    }       
 
     // Function that clears provided className throughout the full grid
     function clearClass(className) {
@@ -420,8 +347,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
         if (cell.classList == "checkCell") {
 
             if (cellClassName == "minus5") {
-                whiteDiceSum(allSums);
-                colorDiceSum(allSums);
+                showAllowedCell();
                 cell.classList.add("minus5");
             }
 
@@ -429,12 +355,11 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
                 cell.className = cellMove1.class;
 
                 if (cellMove1.class == "allowedCell") {
-                    whiteDiceSum(allSums);
+                    showAllowedCell();
                 }
 
                 else if (cellMove1.class == "allowCellColorLine") {
-                    colorDiceSum(allSums);
-                    whiteDiceSum(allSums);
+                    showAllowedCell();
                 }
 
                 // Clear up
@@ -446,11 +371,11 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
                 cell.className = cellMove2.class;
 
                 if (cellMove2.class == "allowedCell") {
-                    whiteDiceSum(allSums);
+                    showAllowedCell();
                 }
 
                 else if (cellMove2.class == "allowCellColorLine") {
-                    colorDiceSum(allSums);
+                    showAllowedCell();
                 }
 
                 // Clear up
@@ -460,8 +385,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
 
             // One of recorded class is "both"? Dislay again all results
             if (cellMove1.class == "allowedCell allowCellColorLine" || cellMove2.class == "allowedCell allowCellColorLine") {
-                whiteDiceSum(allSums);
-                colorDiceSum(allSums);
+                showAllowedCell();
             }
 
             cell.classList.remove("checkCell");
@@ -470,11 +394,10 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
             // Disable and button and display -5 cell only if there's no checkCell on the entire table
             checkCellFound() ? null : disableButton();
             checkCellFound() ? null : displayMinusFiveCell();
-            checkCellFound() ? null : whiteDiceSum(allSums);
-            checkCellFound() ? null : colorDiceSum(allSums);
+            checkCellFound() ? null : showAllowedCell();
 
             // Last cell of a line?
-            if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+            if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                 lineClosed -= 1;
             }
 
@@ -498,9 +421,9 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
             else if (cell.classList == "allowedCell" || cell.classList == "allowCellColorLine" || cell.classList == "allowedCell allowCellColorLine") {
 
                 // Verify wether nb of checked cell per line is at least 5 before checking last cell
-                if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
+                if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
                     messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell.";
-                    nbOfCheckedCellPerLine[rowIndex -1] += 1; // To compensate the minus 1 at the end of this function
+                    playerScoresheet.nbOfCheckedCellPerLine[rowIndex -1] += 1; // To compensate the minus 1 at the end of this function
                 }
 
                 // Otherwise, check
@@ -509,7 +432,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
                     // TO-DO: could be simplified I guess, there's some copy paste here
 
                     // Last cell of a line?
-                    if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                    if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                         lineClosed += 1;
                     }
 
@@ -571,11 +494,11 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
 
     function updateNbOfCheckedCellPerLineArray(rowIndex, className) {
         if (className == "checkCell") {
-            nbOfCheckedCellPerLine[rowIndex -1] += 1;
+            playerScoresheet.nbOfCheckedCellPerLine[rowIndex] += 1;
         }
 
         else if (className == "allowedCell" || className == "allowCellColorLine" || className == "minus5" || className == "allowedCell allowCellColorLine") {
-            nbOfCheckedCellPerLine[rowIndex -1] -= 1;
+            playerScoresheet.nbOfCheckedCellPerLine[rowIndex] -= 1;
         }
     }
 
@@ -621,7 +544,7 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
                 for (let i = cell.cellIndex; i < 11; i++) {
                     if (cellRow.children[i].className == "checkCell") { // Flag for checkCell class in row
 
-                        cell.classList.add("deadCell"); // Add deadCell class to unchcked cell
+                        cell.classList.add("deadCell"); // Add deadCell class to unchecked cell
 
                         for (let j = 0; j < previousCellsInRow.length; j++) { // And add it also for all cells in row preceding
                             if(previousCellsInRow[j].className != "permanentCheckCell") {
@@ -670,17 +593,12 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
                     // Apply CSS class and calculate points
                     check(cell, rowIndex);
 
-                    // TESTING: verify a list of rules. If all true, allow applying checkCell class
-                    rule01(cell);
-                    rule02(cell);
-                    rule03(cell);               
-
                     // When number of checkCell is exactly 2, clear out remaining dislay sum classes (could be a remaining because of the cells having 2 classes and we don't know which one is selected
                     nbOfCheckCellFound() == 2 ? clearClass("allowedCell") : null;
                     nbOfCheckCellFound() == 2 ? clearClass("allowCellColorLine") : null;
 
                     // Last cell of a line? Let's have another round of updating the number of checked cell per line array
-                    if (cell.cellIndex == 10 && nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                    if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
                         updateNbOfCheckedCellPerLineArray(rowIndex, cell.className)
                     }
 
@@ -700,20 +618,16 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     for (i = 0; i < nbOfPlayers; i++) {
       generateGrid(gridSelected, i);
     }
-    
-    // gather a rule set
   }
   
   /*** Rules ***/
 
   /** Basic rules package **/
   // Rule 01 | Cross white dice sum cell
-    const rule01 = (cell) => {
-       return allSums[0] === Number(cell.innerText);
-    }
+    const rule01 = cell => allSums[0] === Number(cell.innerText);
 
   // Rule 02 | Cross color dice sum cell
-    const rule02 = (cell) => {
+    const rule02 = cell => {
         const cellNumber = Number(cell.innerText);
         switch(cell.parentElement.className) {
             case "redbg":
@@ -730,45 +644,42 @@ const generateGrid = (gridSelected, playerSheetNumber = 0) => {
     }
 
   // Rule 03 | Cross from left to right
-    const rule03 = (cell) => {
-        const row = Array.from(cell.parentElement.cells);
+    const rule03 = cell => {
         let checkedList = "";
 
         // Get list of cells already checked
-        checkedList = row.filter( (item) => 
+        checkedList = Array.from(cell.parentElement.cells).filter( (item) => 
                item.classList.contains("permanentCheckCell") 
             || item.classList.contains("checkCell") 
             && item != cell
         );
 
         // Get indexes of those cells
-        checkedList.forEach( (item, index) => { checkedList[index] = item.cellIndex });
+        checkedList.forEach( (item, index) => { checkedList[index] = item.cellIndex } );
 
         // Compare indexes. Last one from the checkedList is the highest
         return checkedList.length > 0 ? cell.cellIndex > checkedList[checkedList.length - 1] : true;
     }
   
-  
-  //Mandatory crossing
-
-  
   // Rule 04 | Cross last cell of a line
-  
-  /*** Player data ***/
-  let playerData = {
-    playerId: [0, 1], // incremental
-    playerName: ["Link", "Zelda"]
-  }
-  
-  /*** Turn data ***/
-  let turnData = {
-    mainPlayerId: 0, // id of main player
-    cellCrossed: false // one value per player 
-  }
-  
+    const rule04 = cell => {
+        // Verify this is last cell
+        if(cell.nextSibling == null) {
+            // Count if at least 5 cells are already checked
+            return Array.from(cell.parentElement.cells).filter( (item) => 
+                item.classList.contains("permanentCheckCell") 
+             || item.classList.contains("checkCell") 
+             && item != cell).length >= 5;
+        }
+    }
+
+    // Rule 05 | Cross a free cell
+    const rule05 = cell => {
+        return !Array.from(cell.classList).some((elem) => { return elem == "deadCell" || elem == "permanentCheckCell"})
+    }
+   
   /*** Game data ***/
   let gameData = {
     closedLine: 0,
     maxMalusCrossed: 0
   }
-  

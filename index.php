@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
         <script src="https://kit.fontawesome.com/7d59c9faf1.js" crossorigin="anonymous"></script>
-        <script src="script.js" defer></script>
+        <script src="script.js" type="module"></script>
     </head>
     <body>
         <nav>
@@ -19,10 +19,9 @@
                 <li><a href="#rules">Rules</a></li>
             </ul>
         </nav>
-
         <div id="playQwixx">
             <div id="diceZone">
-                <button type="button" id="rollDiceButton" onclick="newTurn()">Roll</button>
+                <button type="button" id="rollDiceButton">Roll</button>
                 <div id="displayDice"></div>
             </div>
             <div id="messageZone">
