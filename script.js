@@ -1,10 +1,10 @@
 import { Grid } from "./Grid.js";
-import { Player, PlayerSelection, PlayerScoreSheet } from "./Player.js";
+import { Player } from "./Player.js";
 
 /**********
     Qwixx is a boardgame created by Steffen Benndorf and illustrated by O. & S. Freudenreich.
     This flawed web version is the work of Julie Boissière-Vasseur, as part of webdevelopment studies.
-    Project started sometime in 2022. It was last updated on April 2025
+    Project started sometime in 2022. It was last updated on May 2025
 **********/
 
 "use strict"
@@ -28,57 +28,51 @@ import { Player, PlayerSelection, PlayerScoreSheet } from "./Player.js";
     const button = document.getElementById("rollDiceButton");
 
     // Initialize data
-    let pointsArray = [0, 0, 0, 0, 0], diceArray = [], allSums = [];
-    let cellMove1 = {cell: null, class: null}, cellMove2 = {cell: null, class: null};
+    let diceArray = [], allSums = [];
     let lineClosed = 0, points = 0;
-    let playerNames, rowIndex;
+    let rowIndex;
     messageZone.innerHTML = "To start the game, please click on the Roll button";
 
     // Declaration
     let cellClassName;
 
+// Build player
+const player = new Player(
+    0, // id
+    true, // isMain
+    [0, 0, 0, 0, 0], // nb of crossed cell per line 
+    { 
+        "cellMove1": { cell: null, class: null },
+        "cellMove2": { cell: null, class: null }
+    }
+);
+
 // Build grid
 const grid = new Grid("classicGrid");
 displayDiceZone.insertAdjacentElement("afterend", grid.generateGrid());
 
+  // TODO: update for multiplayer
+  const allTableCells = Array.from(document.querySelectorAll("#playerSheet0 td"));
+  const minus5Line = Array.from(allTableCells.slice(-4));   
+
   // Variables from created grids
-  const playerNamesZone = getPlayerNamesZone();
-  
-  function getPlayerNamesZone() {
+  const playerNamesZone = () => {
     let array = [];
     for (let i = 0; i < 5; i++) {
         let element = document.getElementById(`playerName${i}`);
         if (element) { array.push(element) }
     }
     return array;
-  }
-
-  // TODO: update for multiplayer
-  const allTableRows = document.querySelectorAll("#playerSheet0 > tbody > tr");
-  const allTableCells = Array.from(document.querySelectorAll("#playerSheet0 td"));
-
-          // Slicing the table - Still useful for minus5Line
-          let allLines = [];
-
-          for (let i = 0; i < 5; i++) {
-            allLines[i] = Array.from(allTableRows[i].children)
-            if (i == 4) { allLines[i].shift(); }
-          }
-
-          const [redLine, yellowLine, greenLine, blueLine, minus5Line] = allLines;
-
-// Build player
-const player = new Player(0, true);
-const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]);
+  }    
 
 // Player name management
     // Restore player's names with last game
     if (sessionStorage.getItem("autosave")) {
-        playerNamesZone.forEach((item, index) => { item.innerHTML = JSON.parse(sessionStorage.getItem("autosave"))[index] });
+        playerNamesZone().forEach((item, index) => { item.innerHTML = JSON.parse(sessionStorage.getItem("autosave"))[index] });
     }
 
     // Allow players to edit name
-    playerNamesZone.forEach((item) => { 
+    playerNamesZone().forEach((item) => { 
         item.addEventListener("click", () => { 
             item.innerHTML = "" })
     })
@@ -116,7 +110,7 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
         document.getElementById("congrats").className = "show";
 
         // update form values
-        nameToSend.value = playerNamesZone[0];
+        nameToSend.value = playerNamesZone()[0];
         scoreToSend.value = points;
     }
 
@@ -142,10 +136,7 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
         diceArray = [];
         allSums = [];
         messageZone.innerHTML = "";
-        cellMove1.cell = null;
-        cellMove1.class = null;
-        cellMove2.cell = null;
-        cellMove2.class = null;
+        player.reset_moves();
 
         // Call functions
         clearClass("allowedCell");
@@ -158,7 +149,7 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
     // End game
     function askForEndOfGame() {
         // Game can end if two lines are closed or 4 negative cells are checked
-        if (lineClosed == 2 || playerScoresheet.nbOfCheckedCellPerLine[4] == 4) {
+        if (lineClosed == 2 || player.nbCC[4] == 4) {
             // If so, change button text and function called onclick
             button.innerHTML = "End game?";
             button.addEventListener('click', endGame);
@@ -179,7 +170,7 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
         displayDiceZone.innerText = "";
 
         // Getting points and player name
-        points = countPoints(playerScoresheet.nbOfCheckedCellPerLine);
+        points = countPoints(player.nbCC);
         let playerName = saveNameToSessionStorage();
 
         // Displaying end of game message
@@ -197,13 +188,13 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
     function saveNameToSessionStorage() {
         let namesToSave = [];
 
-        playerNamesZone.forEach((item) => { 
+        playerNamesZone().forEach((item) => { 
             namesToSave.push(item.innerText);
         })
 
         sessionStorage.setItem("autosave", JSON.stringify({ ...namesToSave}));
 
-        return playerNamesZone[0].innerText; // TODO: update for multiplayer approach
+        return playerNamesZone()[0].innerText; // TODO: update for multiplayer approach
     }
 
     // Disable / enable Roll dice button
@@ -351,40 +342,40 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                 cell.classList.add("minus5");
             }
 
-            else if (cell == cellMove1.cell) {
-                cell.className = cellMove1.class;
+            else if (cell == player.moves.cellMove1.cell) {
+                cell.className = player.moves.cellMove1.class;
 
-                if (cellMove1.class == "allowedCell") {
+                if (player.moves.cellMove1.class == "allowedCell") {
                     showAllowedCell();
                 }
 
-                else if (cellMove1.class == "allowCellColorLine") {
+                else if (player.moves.cellMove1.class == "allowCellColorLine") {
                     showAllowedCell();
                 }
 
                 // Clear up
-                cellMove1.cell = null;
-                cellMove1.class = null;
+                player.moves.cellMove1.cell = null;
+                player.moves.cellMove1.class = null;
             }
 
-            else if (cell == cellMove2.cell) {
-                cell.className = cellMove2.class;
+            else if (cell == player.moves.cellMove2.cell) {
+                cell.className = player.moves.cellMove2.class;
 
-                if (cellMove2.class == "allowedCell") {
+                if (player.moves.cellMove2.class == "allowedCell") {
                     showAllowedCell();
                 }
 
-                else if (cellMove2.class == "allowCellColorLine") {
+                else if (player.moves.cellMove2.class == "allowCellColorLine") {
                     showAllowedCell();
                 }
 
                 // Clear up
-                cellMove2.cell = null;
-                cellMove2.class = null;
+                player.moves.cellMove2.cell = null;
+                player.moves.cellMove2.class = null;
             }
 
             // One of recorded class is "both"? Dislay again all results
-            if (cellMove1.class == "allowedCell allowCellColorLine" || cellMove2.class == "allowedCell allowCellColorLine") {
+            if (player.moves.cellMove1.class == "allowedCell allowCellColorLine" || player.moves.cellMove2.class == "allowedCell allowCellColorLine") {
                 showAllowedCell();
             }
 
@@ -397,7 +388,7 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
             checkCellFound() ? null : showAllowedCell();
 
             // Last cell of a line?
-            if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+            if (isLastCell(cell) && rule04(cell)) {
                 lineClosed -= 1;
             }
 
@@ -421,18 +412,17 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
             else if (cell.classList == "allowedCell" || cell.classList == "allowCellColorLine" || cell.classList == "allowedCell allowCellColorLine") {
 
                 // Verify wether nb of checked cell per line is at least 5 before checking last cell
-                if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] < 5) {
+                if (isLastCell(cell) && !rule04(cell)) {
                     messageZone.innerHTML = "Sorry but at least 5 cells should be checked on this line before selecting this cell.";
-                    playerScoresheet.nbOfCheckedCellPerLine[rowIndex -1] += 1; // To compensate the minus 1 at the end of this function
+                    player.nbCC[rowIndex] += 1; // To compensate the minus 1 at the end of this function
                 }
 
                 // Otherwise, check
                 else {
 
                     // TO-DO: could be simplified I guess, there's some copy paste here
-
                     // Last cell of a line?
-                    if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
+                    if (isLastCell(cell) && rule04(cell)) {
                         lineClosed += 1;
                     }
 
@@ -440,13 +430,13 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                         clearClass("allowedCell");
 
                         if (nbOfCheckCellFound() == 0) {
-                            cellMove1.cell = cell
-                            cellMove1.class = "allowedCell";
+                            player.moves.cellMove1.cell = cell
+                            player.moves.cellMove1.class = "allowedCell";
                         }
 
                         else if (nbOfCheckCellFound() == 1) {
-                            cellMove2.cell = cell
-                            cellMove2.class = "allowedCell";
+                            player.moves.cellMove2.cell = cell
+                            player.moves.cellMove2.class = "allowedCell";
                         }
                     }
 
@@ -457,13 +447,13 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                         removeAllowedCellInRow(cell)
 
                         if (nbOfCheckCellFound() == 0) {
-                            cellMove1.cell = cell
-                            cellMove1.class = "allowCellColorLine";
+                            player.moves.cellMove1.cell = cell
+                            player.moves.cellMove1.class = "allowCellColorLine";
                         }
 
                         else if (nbOfCheckCellFound() == 1) {
-                            cellMove2.cell = cell
-                            cellMove2.class = "allowCellColorLine";
+                            player.moves.cellMove2.cell = cell
+                            player.moves.cellMove2.class = "allowCellColorLine";
                         }
                     }
 
@@ -472,13 +462,13 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                         cell.classList.remove("allowCellColorLine");
 
                         if (nbOfCheckCellFound() == 0) {
-                            cellMove1.cell = cell
-                            cellMove1.class = "allowedCell allowCellColorLine";
+                            player.moves.cellMove1.cell = cell
+                            player.moves.cellMove1.class = "allowedCell allowCellColorLine";
                         }
 
                         else if (nbOfCheckCellFound() == 1) {
-                            cellMove2.cell = cell
-                            cellMove2.class = "allowedCell allowCellColorLine";
+                            player.moves.cellMove2.cell = cell
+                            player.moves.cellMove2.class = "allowedCell allowCellColorLine";
                         }
                     }
 
@@ -488,18 +478,8 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                     enableButton();
                 }
             }
-
-    updateNbOfCheckedCellPerLineArray(rowIndex, cell.className);
-    }
-
-    function updateNbOfCheckedCellPerLineArray(rowIndex, className) {
-        if (className == "checkCell") {
-            playerScoresheet.nbOfCheckedCellPerLine[rowIndex] += 1;
-        }
-
-        else if (className == "allowedCell" || className == "allowCellColorLine" || className == "minus5" || className == "allowedCell allowCellColorLine") {
-            playerScoresheet.nbOfCheckedCellPerLine[rowIndex] -= 1;
-        }
+            
+            player.update_nbCC(player.nbCC, rowIndex, cell.className);
     }
 
     // Function that apply or remove deadCell class to previous cells in a row where a cell is checked. Called after each check or uncheck.
@@ -558,15 +538,17 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
     }
 
     // Function that count points
-    function countPoints(nbOfCheckedCellPerLine) {
-        for (let i = 0; i < nbOfCheckedCellPerLine.length - 1; i++) { // For each line from the main grid
-            for (let j = 0; j < nbOfCheckedCellPerLine[i] + 1; j++) { // Add the number to the previous until the value in the index is reached
+    function countPoints(nbCC_array) {
+        let pointsArray = [0, 0, 0, 0, 0];
+
+        for (let i = 0; i < nbCC_array.length - 1; i++) { // For each line
+            for (let j = 0; j < nbCC_array[i] + 1; j++) { // Add the number to the previous until the value in the index is reached
                 pointsArray[i] = pointsArray[i] += j;
             }
         }
 
         // And for last line of the grid
-        for (let k = 0; k < nbOfCheckedCellPerLine[4] ; k++) { // Add the number to the previous until the value in the index is reached
+        for (let k = 0; k < nbCC_array[4] ; k++) { // Add the number to the previous until the value in the index is reached
             pointsArray[4] = pointsArray[4] -= 5;
         }
 
@@ -598,8 +580,8 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
                     nbOfCheckCellFound() == 2 ? clearClass("allowCellColorLine") : null;
 
                     // Last cell of a line? Let's have another round of updating the number of checked cell per line array
-                    if (cell.cellIndex == 10 && playerScoresheet.nbOfCheckedCellPerLine[rowIndex - 1] >= 5) {
-                        updateNbOfCheckedCellPerLineArray(rowIndex, cell.className)
+                    if (isLastCell(cell) && rule04(cell)) {
+                        player.update_nbCC(player.nbCC, rowIndex, cell.className);
                     }
 
                     // End of game?
@@ -663,23 +645,16 @@ const playerScoresheet = new PlayerScoreSheet(player.playerId, player.isMain, [0
   
   // Rule 04 | Cross last cell of a line
     const rule04 = cell => {
-        // Verify this is last cell
-        if(cell.nextSibling == null) {
-            // Count if at least 5 cells are already checked
-            return Array.from(cell.parentElement.cells).filter( (item) => 
-                item.classList.contains("permanentCheckCell") 
-             || item.classList.contains("checkCell") 
-             && item != cell).length >= 5;
-        }
+        // Count if at least 5 cells are already checked
+        return Array.from(cell.parentElement.cells).filter( (item) => 
+            item.classList.contains("permanentCheckCell") 
+            || item.classList.contains("checkCell") 
+            && item != cell).length >= 5 ? true : false;
     }
 
     // Rule 05 | Cross a free cell
     const rule05 = cell => {
         return !Array.from(cell.classList).some((elem) => { return elem == "deadCell" || elem == "permanentCheckCell"})
     }
-   
-  /*** Game data ***/
-  let gameData = {
-    closedLine: 0,
-    maxMalusCrossed: 0
-  }
+
+    const isLastCell = cell => { return !Boolean(cell.nextSibling) };

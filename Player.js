@@ -1,32 +1,31 @@
   class Player {
-    constructor(playerId, isMain) {
-        this.playerId = playerId;
-        this.isMain = isMain;
+    constructor(playerId, isMain, nbCC, moves) {
+        this.playerId = playerId; // number
+        this.isMain = isMain; // boolean
+        this.nbCC = nbCC; // nbCC stands for number of crossed cells (array)
+        this.moves = moves;
       }
     
     mainSwitcher(player) {
       return player.isMain ? false : true;
     }
-  }
 
-  class PlayerScoreSheet extends Player {
-    constructor(playerId, isMain, nbOfCheckedCellPerLine, pointsArray) {
-      super(playerId, isMain);
-      this.nbOfCheckedCellPerLine = nbOfCheckedCellPerLine;
-      this.pointsArray = pointsArray;
+    update_nbCC(nbCC, rowIndex, className) {
+      if (className == "checkCell") {
+        nbCC[rowIndex] += 1;
+      }
+
+      else if (className == "allowedCell" || className == "allowCellColorLine" || className == "minus5" || className == "allowedCell allowCellColorLine") {
+        nbCC[rowIndex] -= 1;
+      }
     }
-    
-    // TODO: add here update function of nbOfCheckedCellPerLine
 
-    // TODO: add here update function of pointsArray
+    reset_moves() {
+      return { 
+        "cellMove1": { cell: null, class: null },
+        "cellMove2": { cell: null, class: null }
+      };
+    }
   }
 
-  class PlayerSelection extends Player {
-    constructor(playerId, isMain, cellMove1, cellMove2) {
-      super(playerId, isMain);
-      this.cellMove1 = cellMove1;
-      this.cellMove2 = cellMove2;
-    } 
-  }
-
-export { Player, PlayerSelection, PlayerScoreSheet };
+export { Player };
