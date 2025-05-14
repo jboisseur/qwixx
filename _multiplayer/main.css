@@ -1,0 +1,265 @@
+/********************
+    Basics
+********************/
+:root {
+    --red: rgb(255, 69, 0);
+    --red-light: rgb(247, 216, 213);
+    --red-dark: rgb(154, 55, 58);
+    --yellow: rgb(255, 215, 0);
+    --yellow-light: rgb(239, 237, 225);
+    --yellow-dark: rgb(193, 149, 86);
+    --green: rgb(50, 205, 50);
+    --green-light: rgb(228, 238, 230);
+    --green-dark: rgb(83, 104, 73);
+    --blue: rgb(135, 206, 235);
+    --blue-light: rgb(232, 231, 245);
+    --blue-dark: rgb(106, 103, 120);
+    --black: black;
+    --pen: #333;
+    --mediumblue: steelblue;
+    --beige: #FCFFE7;
+    --lightblue: #BAD7E9;
+    --darkblue: #2B3467;
+    --lightgrey: rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: ghostwhite;
+}
+
+/********************
+    Utils
+********************/
+.center-text {
+    text-align: center;
+}
+
+/********************
+    New Game Form
+********************/
+.new-game--wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.new-game--container {
+    width: 90%;
+    background-color: white;
+    border: 1px solid var(--lightgrey);
+    box-shadow: 0 4px 8px var(--lightgrey);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.new-game--form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;    
+}
+
+#gameSetup input, #gameSetup select, #gameSetup button {
+    min-width: 200px;
+    width: 50%;
+    padding: 0.375rem;
+    font-size: inherit;
+    border: 2px solid var(--lightgrey);
+}
+
+#gameSetup button {
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: var(--lightgrey);
+    margin: 1rem auto;
+}
+
+#gameSetup button:hover {
+    background-color: var(--yellow);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px var(--lightgrey);
+}
+
+/********************
+    Playersheet
+********************/
+.playersheet-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--lightgrey);
+    box-shadow: 0 4px 8px var(--lightgrey);
+    padding: 10px;
+    margin: 1rem auto;
+    max-width: 90vw;
+    cursor: pointer;
+}
+
+.table-header {
+    background-color: var(--pen);
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    padding-bottom: 2px;
+}
+
+.cell-container {
+    padding: 5px 0;
+    display: grid;
+}
+
+.cell {
+    padding: 5px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: larger;
+    min-width: 25px;
+    min-height: 25px;
+}
+
+.lock-icon {
+    text-shadow: 1px 1px 1px var(--black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.red-bg:first-child, .yellow-bg:first-child, .green-bg:first-child, .blue-bg:first-child {
+    padding: 5px 0 0 5px !important;
+}
+
+.penalty-row-container {
+    margin-top: 3px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cross, .crossed {
+    background:linear-gradient(
+    to bottom right, 
+    transparent  calc(50% - 2px), 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+    ),
+        
+    linear-gradient(
+    to bottom left, 
+    transparent  calc(50% - 2px), 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+  );
+}
+
+/********************
+    Rolling Zone
+********************/
+#rollingZone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#rollingZone button {
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: var(--lightgrey);
+    margin: 1rem auto;
+    padding: 1rem;
+    min-width: 200px;
+    width: 50%;
+    padding: 0.375rem;
+    font-size: inherit;
+    border: 2px solid var(--lightgrey);
+}
+
+#rollingZone button:hover {
+    background-color: var(--yellow);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px var(--lightgrey);
+}
+
+.die {
+    font-size: xx-large;
+    opacity: 1;
+}
+
+/********************
+    Colors
+********************/
+
+    /********************
+        Backgrounds
+    ********************/
+        /* Normal */
+        .red-bg { background-color: var(--red); }
+        .yellow-bg { background-color: var(--yellow); }
+        .green-bg { background-color: var(--green); }
+        .blue-bg { background-color: var(--blue); }
+        .white-bg { background-color: white; }
+
+        /* Light */
+        .red-light-bg { background-color: var(--red-light); }
+        .yellow-light-bg { background-color: var(--yellow-light); }
+        .green-light-bg { background-color: var(--green-light); }
+        .blue-light-bg { background-color: var(--blue-light); }
+
+    /********************
+        Borders
+    ********************/
+        .red-border { border: 1px solid var(--red-dark); }
+        .yellow-border { border: 1px solid var(--yellow-dark); }
+        .green-border { border: 1px solid var(--green-dark); }
+        .blue-border { border: 1px solid var(--blue-dark); }
+        .grey-border { border: 1px solid var(--lightgrey); }
+    
+    /********************
+        Text
+    ********************/
+        /* Dark */
+        .red-text { color: var(--red-dark); }
+        .yellow-text { color: var(--yellow-dark); }
+        .green-text { color: var(--green-dark); }
+        .blue-text { color: var(--blue-dark); }
+
+        /* Normal */
+        .red { color: var(--red); }
+        .yellow { color: var(--yellow); }
+        .green { color: var(--green); }
+        .blue { color: var(--blue); }
+        .white { color: var(--black); }
+
+        /* Light */
+        .red-text-light { color: var(--red-light); }
+        .yellow-text-light { color: var(--yellow-light); }
+        .green-text-light { color: var(--green-light); }
+        .blue-text-light { color: var(--blue-light); }

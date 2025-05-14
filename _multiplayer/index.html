@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Qwixx</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="js/main.js" type="module"></script>
+    <script src="https://kit.fontawesome.com/7d59c9faf1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="new-game--wrapper" id="new-game">
+        <div class="new-game--container">
+            <h1 class="center-text">New Game</h1>
+            <form class="new-game--form" id="gameSetup">
+                <label for="nbOfPlayers">How many players?</label>
+                <input type="number" min="1" max="5" id="nbOfPlayers" name="nbOfPlayers" required class="center-text">
+                <label for="gridtype">Which grid?</label>
+                <select id="gridtype" name="gridtype" required class="center-text">
+                    <option value="standard">Standard</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="bingo">Bingo</option>
+                </select>
+                <button type="submit">Play!</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="playZone" class="playZone"></div>
+
+</body>
+</html>
