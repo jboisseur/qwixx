@@ -1,0 +1,90 @@
+:root {
+    --red: orangered;
+    --yellow: gold;
+    --green: limegreen;
+    --blue: skyblue;
+    --black: black;
+    --pen: #333;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+}
+.display-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.grids {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.grid {
+    border: 1px solid lightgray;
+    border-radius: 2px;
+    margin: 1rem;
+}
+.grid[data-main-player="true"] {
+    border: 2px solid gray;
+    box-shadow: 2px 2px 2px gray;
+}
+.grid div {
+    margin: 0.25rem;
+    cursor: default;
+}
+.grid div span {    
+    display: inline-block;
+    min-width: 30px;
+    height: auto;
+    aspect-ratio: 1/1;
+    text-align: center;
+    background-color: lightgray;
+    border-radius: 2px;
+}
+.grid div span[data-color="red"] {
+    background-color: var(--red);
+    color: white;
+}
+.grid div span[data-color="yellow"] {
+    background-color: var(--yellow);
+}
+.grid div span[data-color="green"] {
+    background-color: var(--green);
+}
+.grid div span[data-color="blue"] {
+    background-color: var(--blue);
+}
+.grid div span[data-is-elegible-w="true"], .grid div span[data-is-elegible-c="true"], .grid div span[data-is-elegible-p="true"] {
+    /* https://cssbud.com/css-generator/css-glow-generator/*/
+    -webkit-box-shadow:0px 0px 1px 1px rgba(9,31,24,0.83);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(9,31,24,0.83);
+    box-shadow: 0px 0px 1px 1px rgba(9,31,24,0.83);
+    cursor: pointer;
+}
+.grid div span[data-is-elegible="false"]:not([data-is-crossed="true"]) {
+    background-color: var(--pen);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.penalty {
+    text-align: right;
+}
+.cross {
+    background:linear-gradient(
+    to bottom right, 
+    transparent  calc(50% - 2px), 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+    ),
+        
+    linear-gradient(
+    to bottom left, 
+    transparent  calc(50% - 2px), 
+    var(--pen) calc(50% - 2px), 
+    var(--pen) calc(50% + 2px) , 
+    transparent  calc(50% + 2px)
+  );
+}
