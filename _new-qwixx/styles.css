@@ -45,7 +45,6 @@ body {
 }
 .grid div span[data-color="red"] {
     background-color: var(--red);
-    color: white;
 }
 .grid div span[data-color="yellow"] {
     background-color: var(--yellow);

@@ -2,10 +2,10 @@
 let diceArray;
 let playerMoves;
 let currentMainPlayer;
+const grids = document.querySelector(".grids").children;
 
 const newTurn = () => {
     // Constants & variables
-    const grids = document.querySelector(".grids").children;
     const dice = document.getElementById("dice");
 
     // Functions    
@@ -98,6 +98,17 @@ const verifyPenalty = cell => {
     return !row.find(elem => elem.dataset.isElegibleP && !elem.dataset.isCrossed);
 }
 
+const verifyLastCell = cell => {
+    // in the row to cross last cell, at least 5 cells should be crossed or have an elegibility attribute
+
+    const row = Array.from(cell.parentElement.children);
+    let count = 0;
+    count += row.filter(elem => elem.dataset.isCrossed).length;
+    count += row.filter(elem => elem.dataset.isElegibleW === "true" || elem.dataset.isElegibleC === "true").length;
+
+    return count >= 5;
+}
+
 const cells = document.querySelectorAll(".grids .grid div span");
 
 const getElegibleCells = () => {
@@ -108,8 +119,7 @@ const getElegibleCells = () => {
         cell.removeAttribute("data-is-elegible-c");
         cell.removeAttribute("data-is-elegible-p");
 
-        // TODO je ne sais plus pourquoi j'ai mis la condition ci-dessous
-        if (cell.dataset.isElegibleW === "false" || !cell.dataset.isElegibleW) {
+        if (!cell.dataset.isCrossed && cell.dataset.isElegible !== "false") {
 
             // for all players
             if (verifyWhisteSum(cell)) {
@@ -129,6 +139,24 @@ const getElegibleCells = () => {
                 }
             }
 
+            // for all players, case of last cell
+            if (cell.dataset.lastCell === "true") {
+                cell.removeAttribute("data-is-elegible-w");
+                cell.removeAttribute("data-is-elegible-c");
+                
+                if (verifyLastCell(cell)) {
+                    if (verifyWhisteSum(cell)) {
+                        cell.dataset.isElegibleW = "true";
+                    }
+                    // for main player
+                    if (isMainPlayer === "true") {
+                        if (verifyColorSum(cell)) {
+                            cell.dataset.isElegibleC = "true";
+                        }
+                    }
+                }
+            }
+
         }
 
     })
@@ -145,59 +173,83 @@ const saveMove = cell => {
     playerMoves[index].push(cell);    
 }
 
+const removeElegibilityOnTheRight = cell => {
+    // Result of white sum should no longer be available on the right hand side of the cell on this row
+    const row = Array.from(cell.parentElement.children);
+    const cellIndex = row.indexOf(cell);
+    for (let i = 0; i < row.slice(cellIndex + 1).length; i++) {
+        row[i].removeAttribute("data-is-elegible-w");
+    }
+}
+
+// Remove isElegible attributes for penalty, white or color sum cells depending on what was crossed
+const removeElegibility = (cell, w, c, p) => {
+    const rows = Array.from(cell.parentElement.parentElement.children);
+    
+    if (p === "true") {
+        rows.forEach(cells => Array.from(cells.children).forEach(cell => {
+            cell.removeAttribute("data-is-elegible-w");
+            cell.removeAttribute("data-is-elegible-c");
+            cell.removeAttribute("data-is-elegible-p");
+        }));
+    }
+
+    else if (w === "true" && c === "true") {
+        cell.removeAttribute("data-is-elegible-w");
+        cell.removeAttribute("data-is-elegible-c");
+        rows.forEach(cells => Array.from(cells.children).forEach(cell => {
+            cell.removeAttribute("data-is-elegible-p");
+        }));
+        removeElegibilityOnTheRight(cell);
+    }
+        
+    else if (w === "true" && c === undefined) {
+        rows.forEach(cells => Array.from(cells.children).forEach(cell => {
+            cell.removeAttribute("data-is-elegible-w");
+            cell.removeAttribute("data-is-elegible-p");
+        }));
+    }
+
+    else if (w === undefined && c === "true") {
+        rows.forEach(cells => Array.from(cells.children).forEach(cell => {      
+            cell.removeAttribute("data-is-elegible-p");
+            if (cell.dataset.isElegibleC === "true") {                    
+                cell.removeAttribute("data-is-elegible-c");
+            }
+        }));
+        removeElegibilityOnTheRight(cell);
+    }
+
+    // Two moves at most for main player        
+    let mainPlayerIndex = Array.from(grids).findIndex(grid => grid.dataset.mainPlayer === "true");
+
+    if (playerMoves[mainPlayerIndex].length === 2) {
+        rows.forEach(cells => Array.from(cells.children).forEach(cell => {
+            cell.removeAttribute("data-is-elegible-w");
+            cell.removeAttribute("data-is-elegible-c");
+        }));
+    }
+}
+
+
 const cross = e => {
     const cell = e.target;
     if (cell.dataset.isElegibleW === "true" || cell.dataset.isElegibleC === "true" || cell.dataset.isElegibleP === "true") {
         crossCell(cell);
-    }
+        saveMove(cell);
 
-    // Ineligibility for previous cells in row
-    const row = Array.from(cell.parentElement.children);
-    const cellIndex = row.indexOf(cell);
-
-    for (let i = 0; i < cellIndex; i++) {
-        row[i].setAttribute("data-is-elegible", "false");
-    }
-
-    // Update turn data
-    saveMove(cell);
-
-    // remove elegibility
-    const removeElegibility = (w, c, p) => {
-        const rows = Array.from(cell.parentElement.parentElement.children);
-        
-        if (p === "true") {
-            rows.forEach(cells => Array.from(cells.children).forEach(cell => {
-                cell.removeAttribute("data-is-elegible-w");
-                cell.removeAttribute("data-is-elegible-c");
-                cell.removeAttribute("data-is-elegible-p");
-            }));
-
-        }
-        
-        if (w === "true" && c === undefined) {
-            rows.forEach(cells => Array.from(cells.children).forEach(cell => {
-                cell.removeAttribute("data-is-elegible-w");
-                cell.removeAttribute("data-is-elegible-p");
-            }));
+        // Ineligibility for previous cells in row
+        const row = Array.from(cell.parentElement.children);
+        const cellIndex = row.indexOf(cell);
+        for (let i = 0; i < cellIndex; i++) {
+            row[i].setAttribute("data-is-elegible", "false");
+            row[i].removeAttribute("data-is-elegible-w");
+            row[i].removeAttribute("data-is-elegible-c");
         }
 
-        else if (w === undefined && c === "true") {
-            rows.forEach(cells => Array.from(cells.children).forEach(cell => {      
-                cell.removeAttribute("data-is-elegible-p");
-
-                if (cell.dataset.isElegibleC === "true") {                    
-                    cell.removeAttribute("data-is-elegible-c");
-                }
-            }));
-
-            for (let i = 0; i < row.slice(cellIndex + 1).length; i++) {
-                row[i].removeAttribute("data-is-elegible-w");
-            }
-            
-        }        
+        // Inegibility for previously elegible cells        
+        removeElegibility(cell, cell.dataset.isElegibleW, cell.dataset.isElegibleC, cell.dataset.isElegibleP);
     }
-    removeElegibility(cell.dataset.isElegibleW, cell.dataset.isElegibleC, cell.dataset.isElegibleP);
 }
 
 cells.forEach(item => item.addEventListener("click", e => cross(e)));
