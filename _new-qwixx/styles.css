@@ -34,6 +34,17 @@ body {
     margin: 0.25rem;
     cursor: default;
 }
+.grid div[data-is-closed="true"] {
+    position: relative;
+}
+.grid div[data-is-closed="true"]::before {
+    content: "";
+    position: absolute;
+    top: 45%;
+    left: 0;
+    border-bottom: var(--pen) 4px solid ;
+    width: 100%;
+}
 .grid div span {    
     display: inline-block;
     min-width: 30px;
