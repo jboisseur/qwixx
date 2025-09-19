@@ -77,6 +77,7 @@ const countPoints = () => {
 const newTurn = () => {
     // Constants & variables
     const dice = document.getElementById("dice");
+    const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6  
 
     // Functions
     const getDiceArray = () => {
@@ -85,6 +86,16 @@ const newTurn = () => {
             res.push(Math.floor(Math.random() * 6 + 1));
         }
         return res
+    }
+
+    const displayDice = diceArray => {
+        dice.innerHTML = "";
+        dice.innerHTML += '<span class="black">' + diceCharList[diceArray[0] - 1] + '</span> ';
+        dice.innerHTML += '<span class="black">' + diceCharList[diceArray[1] - 1] + '</span> ';
+        dice.innerHTML += '<span class="red">' + diceCharList[diceArray[2] - 1] + '</span> ';
+        dice.innerHTML += '<span class="yellow">' + diceCharList[diceArray[3] - 1] + '</span> ';
+        dice.innerHTML += '<span class="green">' + diceCharList[diceArray[4] - 1] + '</span> ';
+        dice.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
     }
 
     const currentMainPlayer = () => {
@@ -148,17 +159,18 @@ const newTurn = () => {
     /* Running functions */
     closeLine();
     switchPlayer();
+
+    // Roll dice
+    diceArray = getDiceArray();
+    displayDice(diceArray);
+
+    // Check for elegibile cells
+    getElegibleCells();
+
     /* End of game? */
     const pointsArray = countPoints();
     updateEndOfGame(pointsArray);    
     resetPlayerMoves();
-
-    // Roll dice
-    diceArray = getDiceArray();
-    dice.innerText = diceArray;
-
-    // Check for elegibile cells
-    getElegibleCells();
 }
 
 /************ ELEGIBILITY ************/
@@ -375,21 +387,28 @@ const updateEndOfGame = pointsArray => {
     if(playerMoves) { 
         if(playerMoves.flat().find(elem => elem.dataset.lastCell === "true" || elem.dataset.penalty === "4")) {
 
-            // todo: plutôt que de se baser sur lastCell crossed, compter le nombre de lignes qui ont l'attribut data-is-closed
-
             let lastCellCrossed = getNbOfCrossedCellsPerRowPerGrid("lastCells");
+            lastCellCrossed = lastCellCrossed.reduce((acc, curr) => acc + curr, 0,);
+
             let penaltyCellCrossed = getNbOfCrossedCellsPerRowPerGrid("penaltyCells");
 
-            if(lastCellCrossed.some(item => item >= 2) || penaltyCellCrossed.some(item => item === 4)) {
-                
+            if(lastCellCrossed >= 2 || penaltyCellCrossed.some(item => item === 4)) {
+
+                // Clean up                
                 cells.forEach(cell => {
                     cell.removeAttribute("data-is-elegible-p");
                     cell.removeAttribute("data-is-elegible-w");
                     cell.removeAttribute("data-is-elegible-c");
                 })
 
-                getWinner(pointsArray);
+                Array.from(grids).forEach(grid => grid.removeAttribute("data-main-player"));
+                
+                dice.innerText = "";               
+
                 disableButton();
+
+                // Finish
+                getWinner(pointsArray);
             }
 
         }

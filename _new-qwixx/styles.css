@@ -83,18 +83,60 @@ body {
 }
 .cross {
     background:linear-gradient(
-    to bottom right, 
-    transparent  calc(50% - 2px), 
-    var(--pen) calc(50% - 2px), 
-    var(--pen) calc(50% + 2px) , 
-    transparent  calc(50% + 2px)
+        to bottom right, 
+        transparent  calc(50% - 2px), 
+        var(--pen) calc(50% - 2px), 
+        var(--pen) calc(50% + 2px) , 
+        transparent  calc(50% + 2px)
     ),
         
     linear-gradient(
-    to bottom left, 
-    transparent  calc(50% - 2px), 
-    var(--pen) calc(50% - 2px), 
-    var(--pen) calc(50% + 2px) , 
-    transparent  calc(50% + 2px)
-  );
+        to bottom left, 
+        transparent  calc(50% - 2px), 
+        var(--pen) calc(50% - 2px), 
+        var(--pen) calc(50% + 2px) , 
+        transparent  calc(50% + 2px)
+    );
+}
+/* Colors */
+.black {
+    color: var(--black);
+}
+
+.red {
+    color: var(--red);
+}
+
+.yellow {
+    color: var(--yellow);
+}
+
+.green {
+    color: var(--green);
+}
+
+.blue {
+    color: var(--blue);
+}
+/* Dice */
+#dice {
+    font-size: xx-large;
+}
+/* Button */
+button {
+    background: lightgray;
+    font-family: inherit;
+    padding: 0.6em 1.3em;
+    border: 3px solid black;
+    border-radius: 0.4em;
+    box-shadow: 0.1em 0.1em;  
+}
+button:hover:not([disabled]) {
+    cursor: pointer;
+    transform: translate(-0.05em, -0.05em);
+    box-shadow: 0.15em 0.15em;
+}
+button:active {
+    transform: translate(0.05em, 0.05em);
+    box-shadow: 0.05em 0.05em;
 }
