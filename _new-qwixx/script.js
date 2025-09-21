@@ -24,7 +24,7 @@ const disableButton = () => diceBtn.disabled = "true";
 const enableButton = () => diceBtn.removeAttribute("disabled");
 const getMainPlayerIndex = () => gridsArray.findIndex(grid => grid.dataset.mainPlayer === "true");
 const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
-    // @param: lastCells, penaltyCells or empty string
+    // @param: penaltyCells or empty string
     // Returns an array (one item per grid)
 
     const res = [];
@@ -34,30 +34,19 @@ const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
         const rows = gridsArray[i].children;
         for (let j = 0; j < rows.length; j++) {
             const cells = Array.from(rows[j].children);
-            switch (param) {
-                case "lastCells":
-                    tempRes[j] = cells.filter(cell => cell.dataset.isCrossed === "true" && cell.dataset.lastCell === "true").length;
-                    break;
-                
+            switch (param) {                
                 case "penaltyCells":
                     res[i] = cells.filter(cell => cell.dataset.isCrossed === "true" && cell.dataset.penalty).length;
                     break;
                 
                 default:
                     tempRes[j] = cells.filter(cell => cell.dataset.isCrossed === "true").length;
-                    if (cells.find(cell => cell.dataset.lastCell === "true" &&  cell.dataset.isCrossed === "true")) { tempRes[j] += 1; }
                     break;
             }
         }
         
         if (param !== "penaltyCells") res.push(tempRes);
         // res is something like [[2,0,1,3,1],[1,4,0,2,0]]
-    }
-
-    if (param === "lastCells") {
-        for (let i = 0; i < res.length; i++) {
-            res[i] = res[i].reduce((acc, curr) => acc + curr, 0,)      
-        }
     }
 
     return res;
@@ -397,6 +386,10 @@ const cross = e => {
     const cell = e.target;
     if (cell.dataset.isElegibleW === "true" || cell.dataset.isElegibleC === "true" || cell.dataset.isElegibleP === "true") {
         crossCell(cell);
+        // Last cell? Cross the lock icon as well
+        if (cell.dataset.lastCell === "true") {
+            crossCell(cell.nextElementSibling);
+        }
         const pointsArray = countPoints();
         saveMove(cell);
         communicate(`Points per player: ${pointsArray}`); 
