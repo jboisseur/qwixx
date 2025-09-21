@@ -1,19 +1,37 @@
-/************ NEW TURN ************/
+/************************
+ * CONSTANTS & VARIABLES 
+ ************************/
 let diceArray;
 let playerMoves;
-let currentMainPlayer;
-const grids = document.querySelector(".grids").children;
-const cells = document.querySelectorAll(".grids .grid div span");
 
+const grids = document.querySelector(".grids").children;
+const gridsArray = Array.from(grids);
+const cells = document.querySelectorAll(".grids .grid div span");
+const diceBtn = document.getElementById("dice-btn");
+const dice = document.getElementById("dice");
+const msg = document.getElementById("message");
+
+const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'];
+
+/************************ 
+ * FUNCTIONS 
+************************/
+/****** 
+ * UTILS
+******/
+const communicate = message => msg.innerText = `${message}`;
+const disableButton = () => diceBtn.disabled = "true";
+const enableButton = () => diceBtn.removeAttribute("disabled");
+const getMainPlayerIndex = () => gridsArray.findIndex(grid => grid.dataset.mainPlayer === "true");
 const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
     // @param: lastCells, penaltyCells or empty string
     // Returns an array (one item per grid)
 
     const res = [];
     
-    for (let i = 0; i < Array.from(grids).length; i++) {       
+    for (let i = 0; i < gridsArray.length; i++) {       
         let tempRes = [];
-        const rows = Array.from(grids[i].children);
+        const rows = gridsArray[i].children;
         for (let j = 0; j < rows.length; j++) {
             const cells = Array.from(rows[j].children);
             switch (param) {
@@ -45,6 +63,19 @@ const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
     return res;
 }
 
+const getClosedLines = () => {
+    let res =[];
+    for (let i = 0; i < gridsArray.length; i++) {       
+        const rows = gridsArray[i].children;
+        for (let j = 0; j < rows.length; j++) {
+            if (rows[j].dataset.isClosed === "true") {
+                res.push(rows[j].dataset.rowColor);
+            }
+        }
+    }
+    return [...new Set(res)];
+}
+
 const countPoints = () => {
     const res = getNbOfCrossedCellsPerRowPerGrid();
 
@@ -74,109 +105,28 @@ const countPoints = () => {
     return res;
 }
 
-const newTurn = () => {
-    // Constants & variables
-    const dice = document.getElementById("dice");
-    const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'] // List of characters representing dice faces, from 1 to 6  
-
-    // Functions
-    const getDiceArray = () => {
-        let res = [];
-        for (let i = 0; i < 6; i++) {
-            res.push(Math.floor(Math.random() * 6 + 1));
-        }
-        return res
+/****** 
+ * DICE RELATED 
+******/
+const getDiceArray = () => {
+    let res = [];
+    for (let i = 0; i < 6; i++) {
+        res.push(Math.floor(Math.random() * 6 + 1));
     }
-
-    const displayDice = diceArray => {
-        dice.innerHTML = "";
-        dice.innerHTML += '<span class="black">' + diceCharList[diceArray[0] - 1] + '</span> ';
-        dice.innerHTML += '<span class="black">' + diceCharList[diceArray[1] - 1] + '</span> ';
-        dice.innerHTML += '<span class="red">' + diceCharList[diceArray[2] - 1] + '</span> ';
-        dice.innerHTML += '<span class="yellow">' + diceCharList[diceArray[3] - 1] + '</span> ';
-        dice.innerHTML += '<span class="green">' + diceCharList[diceArray[4] - 1] + '</span> ';
-        dice.innerHTML += '<span class="blue">' + diceCharList[diceArray[5] - 1] + '</span> ';
-    }
-
-    const currentMainPlayer = () => {
-        let index;
-
-        for (let i = 0; i < grids.length; i++) {        
-            let mainPlayerAttribute = grids[i].dataset.mainPlayer;
-            if (mainPlayerAttribute === "true") {
-                grids[i].dataset.mainPlayer = "false";
-                index = i;
-            }
-        }
-
-        return index;
-    }
-
-    const switchPlayer = () => {
-        let sourceIndex = currentMainPlayer();
-
-        // Target mainPlayer
-        let targetIndex = sourceIndex === grids.length - 1 ? 0 : sourceIndex + 1;
-        grids[targetIndex].dataset.mainPlayer = "true";
-    }
-
-    const resetPlayerMoves = () => {
-        playerMoves = new Array(grids.length);
-        for (let i = 0; i < playerMoves.length; i++) {
-        playerMoves[i] = new Array();
-        };
-    }
-
-    const closeLine = () => {
-        // si la last cell d'une des grids est crossed, ça veut dire que ça ligne est fermée. Il faut parcourir toutes les grid et détecter s'il y a une last cell de crossed et si oui, récupérer la couleur de la row et fermer pour toutes les grilles
-
-        cells.forEach(cell => {
-            if (cell.dataset.isCrossed === "true" && cell.dataset.lastCell === "true") {
-                // get row color
-                const color = cell.parentElement.dataset.rowColor;
-
-                // add isClosed attribute to rows of that color on all grids
-                Array.from(grids).forEach(grid => {
-                    Array.from(grid.children).forEach(row => {
-                        if (row.dataset.rowColor === color) {
-                            row.setAttribute("data-is-closed", "true");
-
-                            // for all cells in row that are not crossed or already unelegible, setAttribute isElegible to false
-                            const cells = Array.from(row.children);
-                            for (let i = 0; i < cells.length; i++) {
-                                if (cells[i].dataset.isCrossed !== "true" && cells[i].dataset.isElegible !== "false") {
-                                    cells[i].dataset.isElegible = "false";
-                                }
-                            }
-                        }
-                    }) 
-                })
-            }
-        })
-
-    }
-
-    /* Running functions */
-    closeLine();
-    switchPlayer();
-
-    // Roll dice
-    diceArray = getDiceArray();
-    displayDice(diceArray);
-
-    // Check for elegibile cells
-    getElegibleCells();
-
-    /* End of game? */
-    const pointsArray = countPoints();
-    updateEndOfGame(pointsArray);    
-    resetPlayerMoves();
+    return res
 }
 
-/************ ELEGIBILITY ************/
-const whiteDiceSum = () => {
-    return diceArray[0] + diceArray[1];
+const displayDice = diceArray => {
+    dice.innerHTML = "";
+    dice.innerHTML += `<span class="black">${diceCharList[diceArray[0] - 1]}</span> `;
+    dice.innerHTML += `<span class="black">${diceCharList[diceArray[1] - 1]}</span> `;
+    dice.innerHTML += `<span class="red">${diceCharList[diceArray[2] - 1]}</span> `;
+    dice.innerHTML += `<span class="yellow">${diceCharList[diceArray[3] - 1]}</span> `;
+    dice.innerHTML += `<span class="green">${diceCharList[diceArray[4] - 1]}</span> `;
+    dice.innerHTML += `<span class="blue">${diceCharList[diceArray[5] - 1]}</span>`;
 }
+
+const whiteDiceSum = () => diceArray[0] + diceArray[1];
 
 const colorDiceSum = () => {
     let sums = [];
@@ -189,6 +139,26 @@ const colorDiceSum = () => {
     return sums;
 }
 
+/****** 
+ * NEW TURN FUNCTIONS 
+ ******/
+const resetPlayerMoves = () => {
+    playerMoves = new Array(grids.length);
+    for (let i = 0; i < playerMoves.length; i++) {
+    playerMoves[i] = new Array();
+    };
+}
+
+const switchPlayer = () => {
+    let sourceIndex = getMainPlayerIndex();
+    let targetIndex = sourceIndex === grids.length - 1 ? 0 : sourceIndex + 1;
+    grids[sourceIndex].removeAttribute("data-main-player");
+    grids[targetIndex].dataset.mainPlayer = "true";
+}
+
+/****** 
+ * ELEGIBILITY 
+******/
 const verifyWhisteSum = cell => {
     return Number(cell.dataset.number) === whiteDiceSum(); 
 }
@@ -215,7 +185,6 @@ const verifyPenalty = cell => {
 }
 
 const verifyLastCell = cell => {
-    // in the row to cross last cell, at least 5 cells should be crossed or have an elegibilityW attribute
     const row = Array.from(cell.parentElement.children);
     let count = 0;
     count += row.filter(elem => elem.dataset.isCrossed).length;
@@ -225,6 +194,7 @@ const verifyLastCell = cell => {
 }
 
 const getElegibleCells = () => {
+
     cells.forEach(cell => {
 
         // remove all previous isElegible
@@ -232,7 +202,7 @@ const getElegibleCells = () => {
         cell.removeAttribute("data-is-elegible-c");
         cell.removeAttribute("data-is-elegible-p");
 
-        if (!cell.dataset.isCrossed && cell.dataset.isElegible !== "false") {
+        if (!cell.dataset.isCrossed && cell.dataset.isElegible !== "false" && cell.parentElement.dataset.isClosed !== "true") {
 
             // for all players
             if (verifyWhisteSum(cell)) {
@@ -252,12 +222,13 @@ const getElegibleCells = () => {
                 }
             }
 
-            // for all players, case of last cell
+            // case of last cell
             if (cell.dataset.lastCell === "true") {
                 cell.removeAttribute("data-is-elegible-w");
                 cell.removeAttribute("data-is-elegible-c");
-                
+
                 if (verifyLastCell(cell)) {
+                    // for all players   
                     if (verifyWhisteSum(cell)) {
                         cell.dataset.isElegibleW = "true";
                     }
@@ -275,7 +246,9 @@ const getElegibleCells = () => {
     })
 }
 
-/************ CROSS ************/
+/****** 
+ * CROSS 
+******/
 const crossCell = cell => {
     cell.classList.add("cross");
     cell.setAttribute("data-is-crossed", "true");
@@ -283,11 +256,10 @@ const crossCell = cell => {
 
 const saveMove = cell => {
     const index = cell.parentElement.parentElement.id.slice(-1) - 1;
-    playerMoves[index].push(cell);    
+    playerMoves[index].push(cell);
 }
 
 const removeElegibilityOnTheRight = cell => {
-    // Result of white sum should no longer be available on the right hand side of the cell on this row
     const row = Array.from(cell.parentElement.children);
     const cellIndex = row.indexOf(cell);
     for (let i = cellIndex + 1; i < row.length; i++) {   
@@ -295,7 +267,6 @@ const removeElegibilityOnTheRight = cell => {
     }
 }
 
-// Remove isElegible attributes for penalty, white or color sum cells depending on what was crossed
 const removeElegibility = (cell, w, c, p) => {
     const rows = Array.from(cell.parentElement.parentElement.children);
     
@@ -333,14 +304,92 @@ const removeElegibility = (cell, w, c, p) => {
         removeElegibilityOnTheRight(cell);
     }
 
-    // Two moves at most for main player        
-    let mainPlayerIndex = Array.from(grids).findIndex(grid => grid.dataset.mainPlayer === "true");
-
+    // Two moves at most for main player
+    let mainPlayerIndex = getMainPlayerIndex();
     if (playerMoves[mainPlayerIndex].length === 2) {
         rows.forEach(cells => Array.from(cells.children).forEach(cell => {
             cell.removeAttribute("data-is-elegible-w");
             cell.removeAttribute("data-is-elegible-c");
         }));
+    }
+}
+
+/****** 
+ * END GAME
+******/
+const verifyEndOfGame = () => {
+    if(playerMoves) {
+        if(playerMoves.flat().find(elem => elem.dataset.lastCell === "true" || elem.dataset.penalty === "4")) {
+            let closedLines = getClosedLines();
+            let penaltyCellCrossed = getNbOfCrossedCellsPerRowPerGrid("penaltyCells");
+
+            return closedLines.length >= 2 || penaltyCellCrossed.some(item => item === 4)
+        }
+    }
+}
+
+const endOfGameCleanUp = () => {
+    cells.forEach(cell => {
+        cell.removeAttribute("data-is-elegible-p");
+        cell.removeAttribute("data-is-elegible-w");
+        cell.removeAttribute("data-is-elegible-c");
+    })
+
+    gridsArray.forEach(grid => grid.removeAttribute("data-main-player"));
+
+    disableButton();
+}
+
+const getWinner = arr => {
+    const max = arr.reduce((m, n) => Math.max(m, n));
+    const winner = [...arr.keys()].filter(i => arr[i] === max);
+    winner.forEach(item => communicate(`Player ${item + 1} wins the game with ${max} points!`));
+}
+
+/******
+ * END LINE
+******/
+const verifyEndOfLine = () => {
+    cells.forEach(cell => {
+        if (cell.dataset.isCrossed === "true" && cell.dataset.lastCell === "true") {
+            // get row color
+            const color = cell.parentElement.dataset.rowColor;
+
+            // add isClosed attribute to rows of that color on all grids
+            gridsArray.forEach(grid => {
+                Array.from(grid.children).forEach(row => {
+                    if (row.dataset.rowColor === color) {
+                        row.setAttribute("data-is-closed", "true");
+                    }
+                }) 
+            })
+        }
+    })
+}
+
+/************ RUNNING GAME ************/
+const newTurn = () => {
+    //test below
+    getClosedLines();
+    //test above
+    verifyEndOfLine();
+
+    if (verifyEndOfGame()) {        
+        endOfGameCleanUp();
+        const pointsArray = countPoints();
+        getWinner(pointsArray);
+    }
+
+    else {
+        // End of previous turn        
+        resetPlayerMoves();        
+        disableButton();
+        switchPlayer();
+
+        // New turn        
+        diceArray = getDiceArray();
+        displayDice(diceArray);
+        getElegibleCells();
     }
 }
 
@@ -363,58 +412,11 @@ const cross = e => {
 
         // Ineligibility for previously elegible cells        
         removeElegibility(cell, cell.dataset.isElegibleW, cell.dataset.isElegibleC, cell.dataset.isElegibleP);
+
+        let mainPlayerIndex = getMainPlayerIndex();
+        if (playerMoves[mainPlayerIndex].length > 0) { enableButton() };
     }
 }
 
-cells.forEach(item => item.addEventListener("click", e => cross(e)));
-
-/************ END GAME ************/
-// Constants & variables
-const msg = document.getElementById("message");
-
-
-// Functions
-const communicate = message => msg.innerText = `${message}`;
-const disableButton = () => diceBtn.disabled = "true";
-
-const getWinner = arr => {
-    const max = arr.reduce((m, n) => Math.max(m, n));
-    const winner = [...arr.keys()].filter(i => arr[i] === max);
-    winner.forEach(item => communicate(`Player ${item + 1} wins the game with ${max} points!`));
-}
-
-const updateEndOfGame = pointsArray => {
-    if(playerMoves) { 
-        if(playerMoves.flat().find(elem => elem.dataset.lastCell === "true" || elem.dataset.penalty === "4")) {
-
-            let lastCellCrossed = getNbOfCrossedCellsPerRowPerGrid("lastCells");
-            lastCellCrossed = lastCellCrossed.reduce((acc, curr) => acc + curr, 0,);
-
-            let penaltyCellCrossed = getNbOfCrossedCellsPerRowPerGrid("penaltyCells");
-
-            if(lastCellCrossed >= 2 || penaltyCellCrossed.some(item => item === 4)) {
-
-                // Clean up                
-                cells.forEach(cell => {
-                    cell.removeAttribute("data-is-elegible-p");
-                    cell.removeAttribute("data-is-elegible-w");
-                    cell.removeAttribute("data-is-elegible-c");
-                })
-
-                Array.from(grids).forEach(grid => grid.removeAttribute("data-main-player"));
-                
-                dice.innerText = "";               
-
-                disableButton();
-
-                // Finish
-                getWinner(pointsArray);
-            }
-
-        }
-    };
-}
-
-/************ MAIN ************/
-const diceBtn = document.getElementById("dice-btn");
 diceBtn.addEventListener("click", newTurn);
+cells.forEach(item => item.addEventListener("click", e => cross(e)));

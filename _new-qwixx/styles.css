@@ -42,7 +42,7 @@ body {
     position: absolute;
     top: 45%;
     left: 0;
-    border-bottom: var(--pen) 4px solid ;
+    border-bottom: var(--pen) 2px solid;
     width: 100%;
 }
 .grid div span {    
