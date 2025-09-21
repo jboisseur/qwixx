@@ -73,7 +73,7 @@ body {
     box-shadow: 0px 0px 1px 1px rgba(9,31,24,0.83);
     cursor: pointer;
 }
-.grid div span[data-is-elegible="false"]:not([data-is-crossed="true"]) {
+.grid div span[data-is-elegible="false"]:not([data-is-crossed="true"]), .grid div span[data-is-elegible-temp="false"]:not([data-is-crossed="true"]) {
     background-color: var(--pen);
     opacity: 0.5;
     cursor: not-allowed;
@@ -139,4 +139,9 @@ button:hover:not([disabled]) {
 button:active {
     transform: translate(0.05em, 0.05em);
     box-shadow: 0.05em 0.05em;
+}
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.375em;
 }

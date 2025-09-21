@@ -8,6 +8,7 @@ const grids = document.querySelector(".grids").children;
 const gridsArray = Array.from(grids);
 const cells = document.querySelectorAll(".grids .grid div span");
 const diceBtn = document.getElementById("dice-btn");
+const cancelBtn = document.getElementById("cancel-btn");
 const dice = document.getElementById("dice");
 const msg = document.getElementById("message");
 
@@ -20,9 +21,17 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
  * UTILS
 ******/
 const communicate = message => msg.innerText = `${message}`;
-const disableButton = () => diceBtn.disabled = "true";
-const enableButton = () => diceBtn.removeAttribute("disabled");
+const disableButton = btn => btn.disabled = "true";
+const enableButton = btn => btn.removeAttribute("disabled");
 const getMainPlayerIndex = () => gridsArray.findIndex(grid => grid.dataset.mainPlayer === "true");
+const permanentIsElegibleFalse = () => {
+    cells.forEach(cell => {
+        if (cell.dataset.isElegibleTemp) {
+            cell.removeAttribute("data-is-elegible-temp");
+            cell.dataset.isElegible = "false";
+        }        
+    })
+}
 const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
     // @param: penaltyCells or empty string
     // Returns an array (one item per grid)
@@ -53,7 +62,7 @@ const getNbOfCrossedCellsPerRowPerGrid = (param = "") => {
 }
 
 const getClosedLines = () => {
-    let res =[];
+    let res = [];
     for (let i = 0; i < gridsArray.length; i++) {       
         const rows = gridsArray[i].children;
         for (let j = 0; j < rows.length; j++) {
@@ -243,6 +252,11 @@ const crossCell = cell => {
     cell.setAttribute("data-is-crossed", "true");
 }
 
+const unCrossCell = cell => {
+    cell.classList.remove("cross");
+    cell.removeAttribute("data-is-crossed");
+}
+
 const saveMove = cell => {
     const index = cell.parentElement.parentElement.id.slice(-1) - 1;
     playerMoves[index].push(cell);
@@ -326,7 +340,8 @@ const endOfGameCleanUp = () => {
 
     gridsArray.forEach(grid => grid.removeAttribute("data-main-player"));
 
-    disableButton();
+    disableButton(diceBtn);
+    disableButton(cancelBtn);
 }
 
 const getWinner = arr => {
@@ -370,9 +385,11 @@ const newTurn = () => {
     }
 
     else {
-        // End of previous turn        
+        // End of previous turn
+        permanentIsElegibleFalse();      
         resetPlayerMoves();        
-        disableButton();
+        disableButton(diceBtn);
+        disableButton(cancelBtn);
         switchPlayer();
 
         // New turn        
@@ -386,6 +403,7 @@ const cross = e => {
     const cell = e.target;
     if (cell.dataset.isElegibleW === "true" || cell.dataset.isElegibleC === "true" || cell.dataset.isElegibleP === "true") {
         crossCell(cell);
+        enableButton(cancelBtn);
         // Last cell? Cross the lock icon as well
         if (cell.dataset.lastCell === "true") {
             crossCell(cell.nextElementSibling);
@@ -398,7 +416,7 @@ const cross = e => {
         const row = Array.from(cell.parentElement.children);
         const cellIndex = row.indexOf(cell);
         for (let i = 0; i < cellIndex; i++) {
-            row[i].setAttribute("data-is-elegible", "false");
+            row[i].setAttribute("data-is-elegible-temp", "false");
             row[i].removeAttribute("data-is-elegible-w");
             row[i].removeAttribute("data-is-elegible-c");
         }
@@ -407,9 +425,22 @@ const cross = e => {
         removeElegibility(cell, cell.dataset.isElegibleW, cell.dataset.isElegibleC, cell.dataset.isElegibleP);
 
         let mainPlayerIndex = getMainPlayerIndex();
-        if (playerMoves[mainPlayerIndex].length > 0) { enableButton() };
+        if (playerMoves[mainPlayerIndex].length > 0) { enableButton(diceBtn) };
     }
+}
+
+const cancel = () => {
+    disableButton(cancelBtn);
+    playerMoves.forEach(player => {
+        player.forEach(cell => {
+            unCrossCell(cell);
+            cells.forEach(cell => cell.removeAttribute("data-is-elegible-temp"));
+        });
+        getElegibleCells();
+        resetPlayerMoves();
+    })
 }
 
 diceBtn.addEventListener("click", newTurn);
 cells.forEach(item => item.addEventListener("click", e => cross(e)));
+cancelBtn.addEventListener("click", cancel);
