@@ -1,3 +1,5 @@
+import { Player } from "./Player.js";
+
 /************************
  * CONSTANTS & VARIABLES 
  ************************/
@@ -13,6 +15,20 @@ const dice = document.getElementById("dice");
 const msg = document.getElementById("message");
 
 const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-solid fa-dice-two"></i>', '<i class="fa-solid fa-dice-three"></i>', '<i class="fa-solid fa-dice-four"></i>', '<i class="fa-solid fa-dice-five"></i>', '<i class="fa-solid fa-dice-six"></i>'];
+
+/****** 
+ * INSTANCES OF CLASS (NORMALLY CREATED WHEN GAME IS SET)
+******/
+/****** 
+ * GRIDS
+******/
+/****** 
+ * PLAYERS
+******/
+const player1 = new Player("grid-1", "Player 1", true);
+const player2 = new Player("grid-2", "Player 2", false);
+const players = [player1, player2];
+players.forEach(player => player.displayPlayerName(document.getElementById(`${player.gridId}_player-name`), player.name));
 
 /************************ 
  * FUNCTIONS 
@@ -346,8 +362,12 @@ const endOfGameCleanUp = () => {
 
 const getWinner = arr => {
     const max = arr.reduce((m, n) => Math.max(m, n));
-    const winner = [...arr.keys()].filter(i => arr[i] === max);
-    winner.forEach(item => communicate(`Player ${item + 1} wins the game with ${max} points!`));
+    const winners = [...arr.keys()].filter(i => arr[i] === max);
+    let winnersNames = [];
+    winners.forEach(winner => {
+        winnersNames.push(players.find(player => Number(player.gridId[5] - 1) === winner).name);        
+    });
+    communicate(`${winnersNames} wins the game with ${max} points!`);
 }
 
 /******
@@ -373,9 +393,6 @@ const verifyEndOfLine = () => {
 
 /************ RUNNING GAME ************/
 const newTurn = () => {
-    //test below
-    getClosedLines();
-    //test above
     verifyEndOfLine();
 
     if (verifyEndOfGame()) {        

@@ -145,3 +145,9 @@ button:active {
     justify-content: center;
     gap: 0.375em;
 }
+/* Player name */
+.player-name {
+    text-align: center;
+    font-weight: bold;
+    padding: 0.5em;
+}
