@@ -25,8 +25,8 @@ const diceCharList = ['<i class="fa-solid fa-dice-one"></i>', '<i class="fa-soli
 /****** 
  * PLAYERS
 ******/
-const player1 = new Player("grid-1", "Player 1", true);
-const player2 = new Player("grid-2", "Player 2", false);
+const player1 = new Player("grid-1", "Player 1", true, []);
+const player2 = new Player("grid-2", "Player 2", false, []);
 const players = [player1, player2];
 players.forEach(player => player.displayPlayerName(document.getElementById(`${player.gridId}_player-name`), player.name));
 
@@ -157,6 +157,9 @@ const colorDiceSum = () => {
  * NEW TURN FUNCTIONS 
  ******/
 const resetPlayerMoves = () => {
+    // new
+    players.forEach(player => player.resetMoves())
+    // old
     playerMoves = new Array(grids.length);
     for (let i = 0; i < playerMoves.length; i++) {
     playerMoves[i] = new Array();
@@ -365,7 +368,7 @@ const getWinner = arr => {
     const winners = [...arr.keys()].filter(i => arr[i] === max);
     let winnersNames = [];
     winners.forEach(winner => {
-        winnersNames.push(players.find(player => Number(player.gridId[5] - 1) === winner).name);        
+        winnersNames.push(players.find(player => Number(player.gridId[5]) - 1 === winner).name);
     });
     communicate(`${winnersNames} wins the game with ${max} points!`);
 }
@@ -403,8 +406,8 @@ const newTurn = () => {
 
     else {
         // End of previous turn
-        permanentIsElegibleFalse();      
-        resetPlayerMoves();        
+        permanentIsElegibleFalse();
+        resetPlayerMoves();
         disableButton(diceBtn);
         disableButton(cancelBtn);
         switchPlayer();
